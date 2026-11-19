@@ -285,27 +285,32 @@ $("density").onchange=e=>{S.set.density=e.target.value;save();theme()};
 $("font").onchange=e=>{S.set.font=e.target.value;save();theme()};
 ["dash","port"].forEach(k=>$("g_"+k).onchange=e=>{S.set.gfx[k]=e.target.checked?1:0;save();render()});
 document.addEventListener("click",e=>{const b=e.target.closest("[data-color-key][data-color-value]");if(!b)return;const k=b.dataset.colorKey;S.set[k]=b.dataset.colorValue;if(k==="customAccent")S.set.accent="gold";save();theme();b.parentElement.querySelectorAll(".color-swatch").forEach(x=>x.classList.toggle("selected",x===b))});
-const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
-const snap=()=>JSON.stringify({deals:S.deals,set:{...S.set,key:undefined,dirName:undefined}}),DAY=864e5;
-async function folderWrite(h,name,json,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;
- const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(json);await w.close();return true}
-async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshift({t:Date.now(),json});await idb("set","copies",c.slice(0,7))}catch(e){}}
-async function backupNow(manual){const json=snap(),name=`nika-backup-${iso()}.json`;let where="";
- try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){}
- await addCopy(json);S.set.lastInt=Date.now();
- if(!where&&manual){dl(name,json,"application/json");where="dl"}
- if(where)S.set.last=Date.now();save();bnr();return where}
-function bnr(){const due=S.set.auto>0&&S.deals.length>0&&Date.now()-S.set.last>=S.set.auto*DAY;$("bn").hidden=!due;if(due)$("bnt").textContent="زمان پشتیبان‌گیری خودکار رسیده است."}
-async function autoTick(){if(S.set.auto>0&&Date.now()-S.set.lastInt>=S.set.auto*DAY)await backupNow(false);bnr()}
-function applyBackup(t){const j=JSON.parse(t);if(!Array.isArray(j.deals))throw 0;S={deals:j.deals,set:{...S.set,...j.set,key:S.set.key,dirName:S.set.dirName}};save()}
-$("bk").onclick=async()=>{const w=await backupNow(true);$("smsg").textContent=w=="folder"?"پشتیبان در پوشه انتخاب‌شده ذخیره شد.":"فایل پشتیبان در پوشه دانلودها ذخیره شد.";render()};
-$("bnb").onclick=async()=>{await backupNow(true);render()};
-$("auto").onchange=e=>{S.set.auto=Number(e.target.value);save();autoTick()};
+const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("kv"))r.result.createObjectStore("kv")};r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"||m=="keys"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="keys"?o.getAllKeys():m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
+const DAY=864e5;
+async function folderWrite(h,name,content,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(content);await w.close();return true}
+const readBlob=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)});
+const writeDataUrl=data=>fetch(data).then(r=>r.blob());
+async function backupPayload(){const keys=await idb("keys"),attachments=[];for(const k of keys.filter(x=>String(x).startsWith("att:"))){const v=await idb("get",k);if(v&&v.blob)attachments.push({key:k,type:v.type||v.blob.type||"application/octet-stream",name:v.name||k,data:await readBlob(v.blob)})}
+ return JSON.stringify({product:"NikaGold",version:2,createdAt:new Date().toISOString(),deals:S.deals,set:{...S.set,key:undefined,dirName:undefined},attachments},null,2)}
+async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshift({t:Date.now(),json});await idb("set","copies",c.slice(0,7))}catch(e){console.warn("backup copy failed",e)}}
+async function backupNow(manual){const json=await backupPayload(),name="nika-backup-"+iso()+".json";let where="";
+ try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){console.warn("folder backup failed",e)}
+ await addCopy(json);S.set.lastInt=Date.now();if(!where&&manual){dl(name,json,"application/json");where="dl"}S.set.lastBackupAt=Date.now();S.set.last=Date.now();save();bnr();return where}
+function bnr(){const due=!!S.set.autoBackupEnabled&&S.deals.length>0&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY);$("bn").hidden=!due;if(due)$("bnt").textContent="موعد تهیه نسخه پشتیبان داخلی رسیده است."}
+async function autoTick(){if(S.set.autoBackupEnabled&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY))await backupNow(false);bnr()}
+async function applyBackup(t){const j=typeof t==="string"?JSON.parse(t):t;if(!j||!Array.isArray(j.deals))throw Error("فایل پشتیبان معتبر نیست");if(j.product&&j.product!=="NikaGold")throw Error("این فایل متعلق به برنامه دیگری است");
+ const keys=await idb("keys");for(const k of keys.filter(x=>String(x).startsWith("att:")))await idb("del",k);
+ for(const a of (Array.isArray(j.attachments)?j.attachments:[])){if(!a.key||!String(a.key).startsWith("att:")||!a.data)continue;const blob=await writeDataUrl(a.data);await idb("set",a.key,{blob,type:a.type||blob.type,name:a.name||a.key.slice(4)})}
+ const oldKey=S.set.key,oldDir=S.set.dirName;S={deals:j.deals,set:{...S.set,...(j.set||{}),key:oldKey,dirName:oldDir,lastInt:Date.now()}};save();render()}
+$("bk").onclick=async()=>{try{const w=await backupNow(true);$("smsg").textContent=w==="folder"?"نسخه پشتیبان در پوشه انتخاب‌شده ذخیره شد.":"نسخه پشتیبان در دانلودها ذخیره شد.";render()}catch(e){$("smsg").textContent="تهیه پشتیبان ناموفق بود: "+e.message}};
+$("bnb").onclick=async()=>{try{await backupNow(true);render()}catch(e){alert(e.message)}};
+$("autoBackupEnabled").onchange=e=>{S.set.autoBackupEnabled=e.target.checked;save();autoTick();rSet()};
+$("backupInterval").onchange=e=>{S.set.backupInterval=Number(e.target.value);save();rSet()};
 $("pick").onclick=async()=>{try{const h=await showDirectoryPicker({mode:"readwrite"});await idb("set","dir",h);S.set.dirName=h.name;save();rSet()}catch(e){}};
 $("unpick").onclick=async()=>{try{await idb("del","dir")}catch(e){}S.set.dirName="";save();rSet()};
-$("cpr").onclick=async()=>{try{const c=await idb("get","copies");applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="نسخه‌ای برای بازیابی نیست."}};
-$("rs").onchange=async e=>{try{applyBackup(await e.target.files[0].text());$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست."}};
-$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();document.addEventListener("visibilitychange",()=>{if(!document.hidden)autoTick()});
+$("cpr").onclick=async()=>{try{const c=await idb("get","copies");if(!c||!c[$("cp").value])throw Error("نسخه‌ای موجود نیست");if(!confirm("اطلاعات فعلی با نسخه پشتیبان انتخاب‌شده جایگزین شود؟"))return;await applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی نسخه داخلی با موفقیت انجام شد."}catch(x){$("smsg").textContent="بازیابی ناموفق بود: "+x.message}};
+$("rs").onchange=async e=>{try{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>100*1024*1024)throw Error("حجم فایل بیش از ۱۰۰ مگابایت است");if(!confirm("اطلاعات فعلی با فایل پشتیبان جایگزین شود؟"))return;await applyBackup(await f.text());$("smsg").textContent="بازیابی فایل پشتیبان با موفقیت انجام شد."}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست: "+x.message}finally{e.target.value=""}};
+$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();document.addEventListener("visibilitychange",()=>{if(!document.hidden){autoTick();if(tab==="set")rSet()}});setInterval(()=>{if(!document.hidden)autoTick()},60000);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
