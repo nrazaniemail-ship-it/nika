@@ -179,7 +179,7 @@ function stats(d){const p=d.inst!=null?d.inst:(d.total-d.prepay)/d.count,t=T();l
 const rp=d=>d.prepay+d.count*stats(d).p;
 function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)}
 
-function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card"><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
+function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card"><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span><div class="ex" style="margin:8px 0 0"><button class="s" data-invoice-print="${d.id}">چاپ فاکتور</button></div></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
 function rDash(){
  const g={};let rem=0,late=0;S.deals.forEach(d=>{(g[d.name]=g[d.name]||[]).push(d);const s=stats(d);rem+=s.rem;late+=s.lateAmt});
  const names=Object.keys(g);
@@ -221,6 +221,7 @@ function newWb(){const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]}
 async function xl(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=newWb();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows()),SHEET[tab]);await outXlsx(wb,`nika-${tab}-${iso()}.xlsx`)}
 async function xlAll(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=newWb();
  [["inv",rowsInv()],["dash",rowsDash()],["port",rowsPort()],["finance",rowsFinance()],["calendar",rowsCalendar()]].forEach(([k,r])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),SHEET[k]));await outXlsx(wb,`nika-all-${iso()}.xlsx`)}
+function printInvoice(id){const d=S.deals.find(x=>x.id===id);if(!d)return;const q=stats(d),period=d.periodUnit==="day"?(d.periodValue||7)+" روز":(d.periodValue||1)+" ماه";$("pa").innerHTML='<div class="invoice-paper"><h2>ریز محاسبه خرید اقساطی</h2><div class="row"><span>نام و نام خانوادگی</span><b>'+esc(d.name)+'</b></div><div class="row"><span>گروه مشتری</span><b>'+esc(d.grp||"—")+'</b></div><div class="row"><span>تاریخ</span><b>'+fd(day(d.date))+'</b></div><div class="row"><span>شماره فاکتور / شرح کالا</span><b>'+esc(d.item||"—")+'</b></div><table><tr><td>مبلغ کل</td><td>'+fa(d.total)+'</td></tr><tr><td>پیش‌پرداخت</td><td>'+fa(d.prepay)+'</td></tr><tr><td>تعداد اقساط</td><td>'+fa(d.count)+'</td></tr><tr><td>دوره پرداخت</td><td>'+period+'</td></tr><tr><td>مبلغ هر قسط</td><td>'+fa(q.p)+'</td></tr><tr><td>مبلغ کل خرید (کل بازپرداخت)</td><td>'+fa(rp(d))+'</td></tr></table><p class="muted">با اطلاع کامل از مبالغ اقساط و شرایط فروش، رضایت خود را نسبت به این خرید اعلام می‌دارم.</p><div class="row"><span>شماره موبایل</span><b>'+esc(d.phone||"")+'</b></div><div class="row"><span>نام و نام خانوادگی</span><b>'+esc(d.name)+'</b></div><div class="row"><span>تاریخ</span><b>'+fd(day(d.date))+'</b></div><p>امضا و اثر انگشت: ....................................</p></div>';document.body.classList.add("printall");addEventListener("afterprint",()=>{document.body.classList.remove("printall");$("pa").innerHTML=""},{once:true});print()}
 function pdf(){document.body.classList.remove("printall");print()}
 function pdfAll(){const tb=(t,r)=>`<h2>${t}</h2>`+(r.length?`<table><thead><tr>${Object.keys(r[0]).map(k=>`<th>${esc(k)}</th>`).join("")}</tr></thead><tbody>${r.map(o=>`<tr>${Object.values(o).map(v=>`<td>${typeof v=="number"?fa(v):esc(String(v))}</td>`).join("")}</tr>`).join("")}</tbody></table>`:"<p>داده‌ای ثبت نشده است.</p>");
  $("pa").innerHTML=`<h1>گزارش کل نیکا — ${fd(new Date())}</h1>`+tb(SHEET.inv,rowsInv())+tb(SHEET.dash,rowsDash())+tb(SHEET.port,rowsPort());
@@ -275,7 +276,7 @@ async function readInvoiceLocal(f,onProgress){
 ["cam","gal","file"].forEach(k=>$("i_"+k).onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)inv(f)});
 document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>$("i_"+b.dataset.pick).click());
 let pend=null,stT=false;
-function startSync(){if(stT)return;const i=parseJ($("f_date").value);if(i)$("f_start").value=jstr(jAdd(i,1))}
+function startSync(){if(stT)return;const i=parseJ($("f_date").value);if(!i)return;const pv=$("f_period")?$("f_period").value:"1";if(pv.endsWith("d"))$("f_start").value=jstr(new Date(day(i).getTime()+Number(pv.slice(0,-1))*864e5));else $("f_start").value=jstr(jAdd(i,Number(pv)||1))}
 function calc(){const pr=num($("f_pre").value||0),c=num($("f_count").value||0),i=num($("f_inst").value||0),r=pr+c*i;$("f_repay_view").textContent=i>0?fa(r):"—";$("f_balance_view").textContent=i>0?fa(c*i):"—"}
 function fillInv(r){let w="";const sv=(id,v)=>{if(v!=null&&v!=="")$(id).value=v};
  sv("f_name",r.name);sv("f_grp",r.group);sv("f_phone",r.phone);sv("f_item",r.item);
@@ -318,7 +319,7 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
 document.addEventListener("click",e=>{
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
  const x=e.target.closest("[data-x]");if(x){const k=x.dataset.x;return k=="xl"?xl():k=="pdf"?pdf():k=="xlall"?xlAll():pdfAll()}
- const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);
+ const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);const ip=e.target.closest("[data-invoice-print]");if(ip)return printInvoice(ip.dataset.invoicePrint);
  const b=e.target.closest("[data-open],[data-pay]");if(!b)return;
  if(b.dataset.open!=null)open=open===b.dataset.open?null:b.dataset.open;
  else{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(z=>z.id===id);d.paid[i]=!d.paid[i];save()}
