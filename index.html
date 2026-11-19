@@ -110,6 +110,19 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 .dash-note{padding:8px 2px;font-size:11px;line-height:1.8}
 @media(max-width:700px){.dash-insights{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-chart-grid{grid-template-columns:1fr}.dash-insight b{font-size:15px}}
 
+
+/* Compact expandable color controls */
+.color-accordion{border:1px solid var(--l);border-radius:11px;background:var(--panel2);overflow:hidden}
+.color-accordion+ .color-accordion{margin-top:1px}
+.color-accordion summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;cursor:pointer;font-size:.88rem;font-weight:650;color:var(--t)}
+.color-accordion summary::-webkit-details-marker{display:none}
+.color-accordion summary::after{content:"⌄";font-size:18px;line-height:1;color:var(--m);transition:transform .18s ease}
+.color-accordion[open] summary::after{transform:rotate(180deg)}
+.color-summary-preview{width:23px;height:23px;border-radius:7px;border:2px solid var(--l);background:var(--preview-color,var(--g));margin-inline-start:auto}
+.color-accordion .color-setting{padding:3px 12px 12px;gap:7px}
+.color-accordion .color-palette{grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.color-accordion .color-swatch{height:25px;border-radius:7px}
+.color-accordion .msg{font-size:.72rem}
 </style>
 </head>
 <body>
@@ -151,10 +164,18 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
  <div class="card f"><b>ظاهر و تجربه کاربری</b>
   <label>پوسته<select id="theme"><option value="auto">مطابق دستگاه</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
   <label>رنگ پوسته<select id="accent"><option value="gold">طلایی</option><option value="teal">فیروزه‌ای</option><option value="blue">آبی</option><option value="rose">رز</option><option value="purple">بنفش</option><option value="green">سبز</option><option value="orange">نارنجی</option><option value="cyan">فیروزه‌ای روشن</option></select></label>
-  <div class="color-setting"><b>رنگ زمینه صفحه</b><div class="color-palette" id="pagePalette"></div></div>
-  <div class="color-setting"><b>رنگ دلخواه پوسته</b><div class="color-palette" id="accentPalette"></div></div>
-  <div class="color-setting"><b>رنگ آیکون‌ها</b><div class="color-palette" id="iconPalette"></div></div>
-  <p class="msg">برای هر بخش ۲۴ رنگ قابل انتخاب است.</p>
+  <details class="color-accordion">
+   <summary><span>رنگ زمینه صفحه</span><span class="color-summary-preview" id="pageColorPreview" aria-hidden="true"></span></summary>
+   <div class="color-setting"><div class="color-palette" id="pagePalette"></div><small class="msg">۲۴ رنگ قابل انتخاب</small></div>
+  </details>
+  <details class="color-accordion">
+   <summary><span>رنگ دلخواه پوسته</span><span class="color-summary-preview" id="accentColorPreview" aria-hidden="true"></span></summary>
+   <div class="color-setting"><div class="color-palette" id="accentPalette"></div><small class="msg">۲۴ رنگ قابل انتخاب</small></div>
+  </details>
+  <details class="color-accordion">
+   <summary><span>رنگ آیکون‌ها</span><span class="color-summary-preview" id="iconColorPreview" aria-hidden="true"></span></summary>
+   <div class="color-setting"><div class="color-palette" id="iconPalette"></div><small class="msg">۲۴ رنگ قابل انتخاب</small></div>
+  </details>
   <label>تراکم نمایش<select id="density"><option value="comfortable">راحت</option><option value="compact">فشرده</option></select></label>
   <label>نوع قلم<select id="font"><option value="vazirmatn">وزیرمتن (پیش‌فرض)</option><option value="parastoo">پرستو</option><option value="samim">صمیم</option><option value="sahel">ساحل</option><option value="gandom">گندم</option><option value="shabnam">شبنم</option><option value="estedad">استعداد</option><option value="noto-naskh">Noto Naskh Arabic</option><option value="noto-kufi">Noto Kufi Arabic</option><option value="noto-sans">Noto Sans Arabic</option><option value="cairo">کایرو (Cairo)</option><option value="system">قلم پیش‌فرض گوشی</option></select></label>
   <label><span><input type="checkbox" id="g_dash" style="width:auto"> گرافیک داشبورد</span></label>
@@ -284,8 +305,8 @@ async function rSet(){$("key").value=S.set.key;$("notify").checked=S.set.notify!
  const fs=!!window.showDirectoryPicker;$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;$("backupFolderName").textContent=S.set.dirName||"پوشه دانلود دستگاه";$("backupLocationInfo").textContent=fs?"در صورت انتخاب پوشه، نسخه‌ها در همان مسیر ذخیره می‌شوند.":"مرورگر فعلی انتخاب مستقیم پوشه را پشتیبانی نمی‌کند؛ خروجی دستی در دانلودها ذخیره می‌شود.";
  $("lastBackupAt").textContent=S.set.lastBackupAt?new Date(S.set.lastBackupAt).toLocaleString("fa-IR"):"هنوز تهیه نشده";$("autoBackupStatus").textContent=S.set.autoBackupEnabled?"فعال (هنگام اجرای برنامه)":"غیرفعال";
  const palette=["#000000","#d6b36b","#56c4b6","#82aeea","#e49baa","#9b7bea","#58a66b","#ed9148","#e5c84b","#34495e","#607d8b","#00a6a6","#0077b6","#4361ee","#7209b7","#b5179e","#f72585","#e76f51","#f4a261","#2a9d8f","#8ab17d","#bc6c25","#6d597a","#adb5bd"];
- const paint=(id,key,value)=>$(id).innerHTML=palette.map(c=>'<button type="button" class="color-swatch '+(String(value||"").toLowerCase()===c?"selected":"")+'" data-color-key="'+key+'" data-color-value="'+c+'" style="--swatch:'+c+'" aria-label="'+c+'" title="'+c+'"></button>').join("");
- paint("pagePalette","pageBackground",S.set.pageBackground);paint("accentPalette","customAccent",S.set.customAccent||"#8a6414");paint("iconPalette","iconColor",S.set.iconColor||"#000000");
+ const paint=(id,key,value,previewId)=>{const chosen=String(value||"").toLowerCase();$(id).innerHTML=palette.map(c=>'<button type="button" class="color-swatch '+(chosen===c?"selected":"")+'" data-color-key="'+key+'" data-color-value="'+c+'" style="--swatch:'+c+'" aria-label="'+c+'" title="'+c+'"></button>').join("");const p=$(previewId);if(p)p.style.setProperty("--preview-color",value|| (key==="iconColor"?"#000000":key==="customAccent"?"#d6b36b":"var(--bg)"))};
+ paint("pagePalette","pageBackground",S.set.pageBackground,"pageColorPreview");paint("accentPalette","customAccent",S.set.customAccent||"#d6b36b","accentColorPreview");paint("iconPalette","iconColor",S.set.iconColor||"#000000","iconColorPreview");
  try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>'<option value="'+i+'">'+new Date(x.t).toLocaleString("fa-IR")+'</option>').join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
 function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches),root=document.documentElement;root.dataset.theme=d?"dark":"light";root.dataset.accent=S.set.accent||"gold";root.dataset.density=S.set.density||"comfortable";root.dataset.font=S.set.font||"vazirmatn";const colors={gold:d?"#d6b36b":"#9a742e",teal:"#168f85",blue:"#3978c8",rose:"#bd657e",purple:"#8664bd",green:"#398653",orange:"#c76b22",cyan:"#168e9b"};root.style.setProperty("--g",S.set.customAccent||colors[S.set.accent]||colors.gold);if(S.set.pageBackground)root.style.setProperty("--bg",S.set.pageBackground);else root.style.removeProperty("--bg");root.style.setProperty("--icon-color",S.set.iconColor||"var(--g)");const ti=$("themeIcon");if(ti)ti.innerHTML=d?'<path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/>' : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>' }
 function render(){({inv:rInv,dash:rDash,port:rPort,finance:rFinance,calendar:rCalendar,set:rSet})[tab]();document.body.className=Object.keys(S.set.gfx).filter(k=>!S.set.gfx[k]).map(k=>"ng-"+k).join(" ");theme()}
@@ -416,7 +437,7 @@ $("accent").onchange=e=>{S.set.accent=e.target.value;S.set.customAccent="";save(
 $("density").onchange=e=>{S.set.density=e.target.value;save();theme()};
 $("font").onchange=e=>{S.set.font=e.target.value;save();theme()};
 ["dash","port"].forEach(k=>$("g_"+k).onchange=e=>{S.set.gfx[k]=e.target.checked?1:0;save();render()});
-document.addEventListener("click",e=>{const b=e.target.closest("[data-color-key][data-color-value]");if(!b)return;const k=b.dataset.colorKey;S.set[k]=b.dataset.colorValue;if(k==="customAccent")S.set.accent="gold";save();theme();b.parentElement.querySelectorAll(".color-swatch").forEach(x=>x.classList.toggle("selected",x===b))});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-color-key][data-color-value]");if(!b)return;const k=b.dataset.colorKey;S.set[k]=b.dataset.colorValue;if(k==="customAccent")S.set.accent="gold";save();theme();b.parentElement.querySelectorAll(".color-swatch").forEach(x=>x.classList.toggle("selected",x===b));const previewId={pageBackground:"pageColorPreview",customAccent:"accentColorPreview",iconColor:"iconColorPreview"}[k],p=previewId&&$(previewId);if(p)p.style.setProperty("--preview-color",b.dataset.colorValue)});
 const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("kv"))r.result.createObjectStore("kv")};r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"||m=="keys"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="keys"?o.getAllKeys():m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
 const DAY=864e5;
 async function folderWrite(h,name,content,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(content);await w.close();return true}
