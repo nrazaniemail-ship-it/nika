@@ -8,6 +8,8 @@
 <link rel="icon" href="icon.svg">
 <title>نیکا</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 @import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/parastoo.css");
 @import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/samim.css");
@@ -232,11 +234,37 @@ function pdfAll(){const tb=(t,r)=>`<h2>${t}</h2>`+(r.length?`<table><thead><tr>$
  document.body.classList.add("printall");addEventListener("afterprint",()=>{document.body.classList.remove("printall");$("pa").innerHTML=""},{once:true});print()}
 async function readInvoice(f){
  let block;
- if(f.type=="application/pdf"){const data=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f)});block={type:"document",source:{type:"base64",media_type:"application/pdf",data}}}
- else{const im=await createImageBitmap(f),sc=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);block={type:"image",source:{type:"base64",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.85).split(",")[1]}}}
- const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:500,messages:[{role:"user",content:[block,{type:"text",text:"این تصویر یک «ریزمحاسبه خرید اقساطی» است. فقط یک JSON بدون هیچ متن دیگر برگردان با این کلیدها: name (نام و نام خانوادگی)، group (گروه مشتری)، phone (شماره موبایل؛ اگر خالی است null)، date (تاریخ بالای فاکتور دقیقاً همان‌طور که چاپ شده، با ارقام انگلیسی به شکل YYYY/MM/DD)، item (متن مقابل «شماره فاکتور»)، total (مبلغ کل)، prepay (پیش پرداخت)، count (تعداد اقساط)، inst (مبلغ هر قسط)، repay (مبلغ کل خرید یا کل بازپرداخت)، profit (سود). همه مبلغ‌ها عدد انگلیسی بدون کاما. مقدار نامعلوم را null بگذار."}]}]})});
+ if(f.type==="application/pdf"){const data=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f)});block={type:"document",source:{type:"base64",media_type:"application/pdf",data}}}
+ else{const im=await createImageBitmap(f),sc=Math.min(1,1800/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);block={type:"image",source:{type:"base64",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.9).split(",")[1]}}}
+ const prompt="این تصویر یا PDF فاکتور فروش اقساطی طلاست. اطلاعات را دقیق استخراج کن و فقط JSON معتبر برگردان. کلیدها: name نام و نام خانوادگی مشتری، group گروه مشتری، phone شماره موبایل، date تاریخ فاکتور به صورت YYYY/MM/DD با ارقام انگلیسی (تاریخ شمسی را شمسی نگه دار)، item شماره فاکتور یا شرح کالا، total مبلغ کل کالا/فاکتور، prepay پیش‌پرداخت، count تعداد اقساط، inst مبلغ هر قسط، repay کل بازپرداخت، profit سود. همه مبلغ‌ها و تعدادها عدد انگلیسی بدون جداکننده باشند. اگر فیلدی خوانا نیست null بده و حدس نزن. مراقب باش مبلغ کل، پیش‌پرداخت، مبلغ هر قسط و کل بازپرداخت با هم اشتباه نشوند.";
+ const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:700,messages:[{role:"user",content:[block,{type:"text",text:prompt}]}]})});
  const j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
- return JSON.parse(j.content.map(x=>x.text||"").join("").replace(/```json|```/g,"").trim())}
+ return JSON.parse(j.content.map(x=>x.text||"").join("").replace(/\u0060\u0060\u0060json|\u0060\u0060\u0060/g,"").trim())}
+async function invoiceImageForOCR(f){
+ if(f.type!=="application/pdf")return f;
+ if(!window.pdfjsLib)throw Error("موتور خواندن PDF بارگذاری نشد؛ برای PDF از کلید API در تنظیمات استفاده کن.");
+ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+ const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,page=await doc.getPage(1),vp=page.getViewport({scale:2}),c=document.createElement("canvas");
+ c.width=vp.width;c.height=vp.height;await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+ return await new Promise((ok,no)=>c.toBlob(b=>b?ok(b):no(Error("تبدیل صفحه PDF ناموفق بود")),"image/jpeg",.92))}
+function localInvoiceFields(text){
+ const clean=text.replace(/\r/g,"\n").split("\n").map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+ const all=clean.join("\n"),norm=x=>x.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+ const value=(re)=>{for(let i=0;i<clean.length;i++){const m=clean[i].match(re);if(!m)continue;let v=clean[i].slice(m.index+m[0].length).replace(/^[\s:：\-–|]+/,"").trim();if(!v&&clean[i+1]&&!/(نام|مبلغ|تاریخ|قسط|فاکتور|موبایل|تلفن|پیش)/.test(clean[i+1]))v=clean[i+1];if(v)return v}return""};
+ const number=(re)=>{const v=value(re);if(!v)return null;const m=norm(v).match(/\d[\d,٬،.\s]*/);if(!m)return null;const n=Number(m[0].replace(/[^\d]/g,""));return Number.isFinite(n)&&n>0?n:null};
+ const phone=(norm(all).match(/(?:\+?98|0)?9\d[\d\s\-]{8,12}/)||[])[0];
+ const date=(norm(all).match(/(?:14\d{2}|20\d{2})[\/\-.]\d{1,2}[\/\-.]\d{1,2}/)||[])[0];
+ let name=value(/نام\s*(?:و\s*نام)?\s*خانوادگ[یي]/);if(!name)name=value(/نام\s*مشتری/);
+ const group=value(/گروه\s*مشتری/),item=value(/شماره\s*فاکتور|شرح\s*کالا/);
+ return {name:name||null,group:group||null,phone:phone?phone.replace(/[^\d+]/g,""):null,date:date?date.replace(/[.-]/g,"/"):null,item:item||null,
+ total:number(/مبلغ\s*(?:کل|فاکتور|خرید)/),prepay:number(/پیش\s*پرداخت|مبلغ\s*پیش/),count:number(/تعداد\s*(?:اقساط|قسط)/),inst:number(/مبلغ\s*هر\s*قسط|هر\s*قسط/),repay:number(/کل\s*بازپرداخت|مبلغ\s*بازپرداخت/),profit:number(/سود(?:\s*کل)?/)};
+}
+async function readInvoiceLocal(f,onProgress){
+ if(!window.Tesseract)throw Error("موتور OCR بارگذاری نشد؛ اتصال اینترنت را بررسی کن.");
+ const image=await invoiceImageForOCR(f);onProgress("در حال تشخیص متن فارسی و اعداد…");
+ const result=await Tesseract.recognize(image,"fas+eng",{logger:m=>{if(m.status==="recognizing text"&&m.progress)onProgress("در حال خواندن فاکتور… "+Math.round(m.progress*100)+"٪")}});
+ return {fields:localInvoiceFields(result.data.text||""),confidence:Math.round(result.data.confidence||0),text:result.data.text||""}}
+
 
 ["cam","gal","file"].forEach(k=>$("i_"+k).onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)inv(f)});
 document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>$("i_"+b.dataset.pick).click());
@@ -250,12 +278,15 @@ function fillInv(r){let w="";const sv=(id,v)=>{if(v!=null&&v!=="")$(id).value=v}
  const rr=num($("f_pre").value||0)+num($("f_count").value||0)*num($("f_inst").value||0);
  if(r.repay!=null&&Math.abs(num(r.repay)-rr)>1)w+=" ⚠ کل بازپرداخت چاپ‌شده با محاسبه فرق دارد.";
  if(r.profit!=null&&Math.abs(num(r.profit)-(rr-num($("f_total").value||0)))>1)w+=" ⚠ سود چاپ‌شده با محاسبه فرق دارد.";return w}
-async function inv(f){pend=f;const m=$("imsg");m.className="msg";
- if(!S.set.key){m.textContent="فایل پیوست شد. برای پر شدن خودکار، کلید API را در تنظیمات وارد کن یا فیلدها را دستی پر کن.";return}
- m.textContent="در حال خواندن فاکتور…";
- try{const r=await readInvoice(f);
-  const w=fillInv(r);
-  m.textContent="خوانده شد و فایل پیوست شد. مقادیر را حتماً بررسی کن."+w}catch(x){m.className="msg e";m.textContent="خطا: "+x.message}};
+async function inv(f){pend=f;const m=$("imsg");m.className="msg";m.textContent="فاکتور دریافت شد؛ در حال آماده‌سازی برای پردازش…";
+ try{let r=null,method="";
+  if(S.set.key){try{m.textContent="در حال تحلیل هوشمند فاکتور…";r=await readInvoice(f);method="هوش مصنوعی"}catch(x){m.textContent="تحلیل آنلاین انجام نشد؛ پردازش محلی آغاز می‌شود…"}}
+  if(!r){const local=await readInvoiceLocal(f,t=>m.textContent=t);r=local.fields;method="OCR محلی";r._confidence=local.confidence}
+  const warning=fillInv(r),filled=["name","phone","date","item","total","prepay","count","inst"].filter(k=>r[k]!=null&&r[k]!=="").length;
+  if(filled<3){m.className="msg e";m.textContent="متن فاکتور شناسایی شد، اما اطلاعات کافی برای تکمیل خودکار پیدا نشد. تصویر واضح‌تر و مستقیم از فاکتور بگیر یا کلید API را در تنظیمات وارد کن. فایل همچنان برای پیوست نگه داشته شده است.";return}
+  const confidence=r._confidence!=null?" — اطمینان OCR: "+fa(r._confidence)+"٪":"";
+  m.textContent="فرم با "+method+" تکمیل شد ("+fa(filled)+" فیلد از ۸ فیلد اصلی)"+confidence+". لطفاً همه مبالغ و تاریخ‌ها را قبل از ثبت بررسی کن."+warning;
+ }catch(x){m.className="msg e";m.textContent="پردازش فاکتور انجام نشد: "+x.message+"؛ فایل برای پیوست نگه داشته شد."}};
 async function prep(f){if(f.type=="application/pdf")return f;const im=await createImageBitmap(f),sc=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.85))}
 async function showAtt(id){try{const a=await idb("get","att:"+id);if(!a)return alert("فایل پیوست پیدا نشد.");
  const u=URL.createObjectURL(a.blob),v=document.createElement("div");
