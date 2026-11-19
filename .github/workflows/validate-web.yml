@@ -7,6 +7,10 @@ on:
       - 'sw.js'
       - '.github/workflows/validate-web.yml'
   workflow_dispatch:
+concurrency:
+  group: nika-web-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   syntax:
     runs-on: ubuntu-latest
