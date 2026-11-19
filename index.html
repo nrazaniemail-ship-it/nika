@@ -343,10 +343,13 @@ $("jalaliYear").onchange=e=>{jalaliYear=Number(e.target.value);jalaliDay=Math.mi
 $("jalaliMonth").onchange=e=>{jalaliMonth=Number(e.target.value);jalaliDay=Math.min(jalaliDay,jalaliMonthLength(jalaliYear,jalaliMonth));jalaliRender()};
 $("jalaliDays").onclick=e=>{const b=e.target.closest("[data-jalali-day]");if(!b)return;jalaliDay=Number(b.dataset.jalaliDay);jalaliRender()};
 $("jalaliToday").onclick=()=>{const t=new Date(),j=g2j(t.getFullYear(),t.getMonth()+1,t.getDate());jalaliYear=j[0];jalaliMonth=j[1];jalaliDay=j[2];jalaliRender()};
-$("jalaliConfirm").onclick=()=>{if(!jalaliTarget)return;jalaliTarget.value=jalaliYear+"/"+P(jalaliMonth)+"/"+P(jalaliDay);jalaliTarget.dispatchEvent(new Event("change",{bubbles:true}));if(jalaliTarget.id==="f_date")startSync();if(jalaliTarget.id==="f_start")stT=true;jalaliClose()};
+$("jalaliConfirm").onclick=()=>{if(!jalaliTarget)return;const g=j2g(jalaliYear,jalaliMonth,jalaliDay);jalaliTarget.value=jalaliTarget.dataset.jalaliOutput==="iso"?g[0]+"-"+P(g[1])+"-"+P(g[2]):jalaliYear+"/"+P(jalaliMonth)+"/"+P(jalaliDay);jalaliTarget.dispatchEvent(new Event("input",{bubbles:true}));jalaliTarget.dispatchEvent(new Event("change",{bubbles:true}));if(jalaliTarget.id==="f_date")startSync();if(jalaliTarget.id==="f_start")stT=true;jalaliClose()};
 $("jalaliClose").onclick=$("jalaliCancel").onclick=jalaliClose;
 $("jalaliPicker").addEventListener("click",e=>{if(e.target===$("jalaliPicker"))jalaliClose()});
-document.addEventListener("click",e=>{const input=e.target.closest("#f_date,#f_start");if(input)jalaliOpen(input)});
+function attachJalaliDatePickers(root=document){const selector='input[type="date"],input[data-jalali-date],input[name*="date" i],input[id*="date" i],input[placeholder*="تاریخ"]';const list=[];if(root.matches&&root.matches(selector))list.push(root);if(root.querySelectorAll)list.push(...root.querySelectorAll(selector));list.forEach(input=>{if(input.id==="jalaliYear"||input.id==="jalaliMonth"||input.dataset.jalaliPicker==="ready")return;const nativeDate=input.type==="date";if(nativeDate){input.dataset.jalaliOutput="iso";input.type="text"}input.dataset.jalaliPicker="ready";input.type="text";input.readOnly=true;input.inputMode="none";input.setAttribute("aria-haspopup","dialog");if(!input.placeholder)input.placeholder="انتخاب تاریخ";});}
+attachJalaliDatePickers();
+if(window.MutationObserver){new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)attachJalaliDatePickers(node)}))).observe(document.body,{childList:true,subtree:true});}
+document.addEventListener("click",e=>{const input=e.target.closest('input[data-jalali-picker="ready"]');if(input)jalaliOpen(input)});
 /*J1*/
 const due=(d,i)=>{if(d.periodUnit==="day")return new Date(day(d.start).getTime()+i*(d.periodValue||7)*864e5);return jAdd(d.start,i*(d.periodValue||1))};
 const T=()=>{const t=new Date();t.setHours(0,0,0,0);return t};
