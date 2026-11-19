@@ -9,6 +9,17 @@
 <title>نیکا</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/parastoo.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/samim.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/sahel.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/gandom.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/shabnam.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/estedad.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-naskh-arabic.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-kufi-arabic.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-sans-arabic.css");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap");
+
 :root{--bg:#faf7f0;--c:#fff;--t:#2a2418;--m:#7d735e;--l:#e6dfcc;--g:#8a6414;--gt:#fff;--bad:#b3412e;--bb:#f8e4de;--ok:#2d7a4b;--mid:#a86a12}
 :root[data-theme=dark]{--bg:#17140e;--c:#221e15;--t:#f1ead8;--m:#a89d84;--l:#35301f;--g:#e0b94d;--gt:#1a1406;--bad:#ef8a76;--bb:#3a2420;--ok:#6bc48a;--mid:#e0a64d}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -47,6 +58,13 @@ input[type=date]{direction:ltr;text-align:right}
 @media print{nav,.ex,button.head~*,.p,.s{display:none}.tab{display:none!important}.tab.on{display:block!important}body{background:#fff;color:#000}.ins{border-color:#999}
 .printall main,.printall nav{display:none!important}.printall #pa{display:block}
 #pa h1{font-size:16px}#pa h2{font-size:13px;margin:14px 0 6px}#pa table{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:12px}#pa th,#pa td{border:1px solid #888;padding:3px 5px;text-align:start}#pa th{background:#eee}}
+
+:root[data-accent=teal]{--g:#168f85}:root[data-accent=blue]{--g:#3978c8}:root[data-accent=rose]{--g:#bd657e}:root[data-accent=purple]{--g:#8664bd}:root[data-accent=green]{--g:#398653}:root[data-accent=orange]{--g:#c76b22}:root[data-accent=cyan]{--g:#168e9b}
+:root[data-density=compact] .card{padding:10px;margin-bottom:7px}:root[data-density=compact] main{padding-top:10px}:root[data-density=compact] input,:root[data-density=compact] select{padding:8px}
+:root[data-font=parastoo] body{font-family:Parastoo,system-ui,sans-serif}:root[data-font=samim] body{font-family:Samim,system-ui,sans-serif}:root[data-font=sahel] body{font-family:Sahel,system-ui,sans-serif}:root[data-font=gandom] body{font-family:Gandom,system-ui,sans-serif}:root[data-font=shabnam] body{font-family:Shabnam,system-ui,sans-serif}:root[data-font=estedad] body{font-family:Estedad,system-ui,sans-serif}:root[data-font=noto-naskh] body{font-family:"Noto Naskh Arabic",system-ui,sans-serif}:root[data-font=noto-kufi] body{font-family:"Noto Kufi Arabic",system-ui,sans-serif}:root[data-font=noto-sans] body{font-family:"Noto Sans Arabic",system-ui,sans-serif}:root[data-font=cairo] body{font-family:Cairo,system-ui,sans-serif}:root[data-font=system] body{font-family:system-ui,sans-serif}
+.color-setting{display:grid;gap:9px}.color-palette{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}.color-swatch{height:30px;min-width:0;border:2px solid var(--l);border-radius:9px;background:var(--swatch);padding:0}.color-swatch.selected{outline:3px solid var(--g);outline-offset:2px;border-color:var(--c)}
+.security-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.security-info>div,.backup-folder-card{background:var(--bg);border:1px solid var(--l);border-radius:10px;padding:10px}.security-info small,.backup-folder-card small{display:block;color:var(--m);font-size:.75rem}.security-info b,.backup-folder-card b{display:block;margin-top:4px;overflow-wrap:anywhere}.backup-folder-card p,.security-warning p{font-size:.8rem;line-height:1.8;color:var(--m);margin:7px 0 0}.security-warning{border:1px solid var(--mid);background:var(--c);border-radius:10px;padding:12px}.security-warning b{color:var(--mid)}.security-warning p{color:var(--t)}#set h3{font-size:.95rem;margin:8px 0}
+nav button.on{color:var(--icon-color,var(--g))}
 </style>
 </head>
 <body>
@@ -89,32 +107,53 @@ input[type=date]{direction:ltr;text-align:right}
  <div id="pl"></div></section>
 <section id="set" class="tab"><h1>تنظیمات</h1>
  <div class="card f"><b>خروجی کل</b>
-  <p class="msg">هر سه لایه (ثبت فاکتور، داشبورد، پورتفو) در یک فایل. در Excel هر لایه یک Sheet جدا است و در PDF هر لایه یک بخش.</p>
-  <div class="ex" style="margin:0"><button class="s" data-x="xlall">خروجی Excel</button><button class="s" data-x="pdfall">خروجی PDF</button></div>
-  <p class="msg">برای PDF، در پنجره چاپ گزینه «ذخیره به‌صورت PDF» را انتخاب کن.</p></div>
- <div class="card f">
-  <label>پوسته<select id="theme"><option value="auto">خودکار</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
+  <p class="msg">هر سه لایه ثبت فاکتور، داشبورد و پورتفو در یک فایل واحد. در Excel هر لایه یک Sheet و در PDF هر لایه یک بخش مستقل است.</p>
+  <div class="ex" style="margin:0"><button class="s" data-x="xlall">خروجی جامع Excel</button><button class="s" data-x="pdfall">خروجی جامع PDF</button></div>
+  <p class="msg">در پنجره چاپ PDF، گزینه «ذخیره به‌صورت PDF» را انتخاب کن.</p></div>
+ <div class="card f"><b>ظاهر و تجربه کاربری</b>
+  <label>پوسته<select id="theme"><option value="auto">مطابق دستگاه</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
+  <label>رنگ پوسته<select id="accent"><option value="gold">طلایی</option><option value="teal">فیروزه‌ای</option><option value="blue">آبی</option><option value="rose">رز</option><option value="purple">بنفش</option><option value="green">سبز</option><option value="orange">نارنجی</option><option value="cyan">فیروزه‌ای روشن</option></select></label>
+  <div class="color-setting"><b>رنگ زمینه صفحه</b><div class="color-palette" id="pagePalette"></div></div>
+  <div class="color-setting"><b>رنگ دلخواه پوسته</b><div class="color-palette" id="accentPalette"></div></div>
+  <div class="color-setting"><b>رنگ آیکون‌ها</b><div class="color-palette" id="iconPalette"></div></div>
+  <p class="msg">برای هر بخش ۲۴ رنگ قابل انتخاب است.</p>
+  <label>تراکم نمایش<select id="density"><option value="comfortable">راحت</option><option value="compact">فشرده</option></select></label>
+  <label>نوع قلم<select id="font"><option value="vazirmatn">وزیرمتن (پیش‌فرض)</option><option value="parastoo">پرستو</option><option value="samim">صمیم</option><option value="sahel">ساحل</option><option value="gandom">گندم</option><option value="shabnam">شبنم</option><option value="estedad">استعداد</option><option value="noto-naskh">Noto Naskh Arabic</option><option value="noto-kufi">Noto Kufi Arabic</option><option value="noto-sans">Noto Sans Arabic</option><option value="cairo">کایرو (Cairo)</option><option value="system">قلم پیش‌فرض گوشی</option></select></label>
   <label><span><input type="checkbox" id="g_dash" style="width:auto"> گرافیک داشبورد</span></label>
   <label><span><input type="checkbox" id="g_port" style="width:auto"> گرافیک پورتفو</span></label>
  </div>
- <div class="card f"><b>امنیت و پشتیبانی</b>
-  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در پشتیبان نمی‌آید)<input id="key" type="password" autocomplete="off"></label>
-  <p class="msg" id="sinfo"></p>
-  <label>پشتیبان‌گیری خودکار<select id="auto"><option value="0">خاموش</option><option value="1">روزانه</option><option value="3">هر ۳ روز</option><option value="7">هفتگی</option><option value="30">ماهانه</option></select></label>
-  <p class="msg" id="dinfo"></p>
+ <div class="card f"><b>اعلان و یادآوری اقساط</b>
+  <label><span><input type="checkbox" id="notify" style="width:auto"> فعال‌سازی اعلان‌های اقساط</span></label>
+  <label>زمان یادآوری<select id="reminderMinutes"><option value="0">در موعد قسط</option><option value="15">۱۵ دقیقه قبل</option><option value="30">۳۰ دقیقه قبل</option><option value="60">۱ ساعت قبل</option><option value="180">۳ ساعت قبل</option><option value="1440">۱ روز قبل</option><option value="2880">۲ روز قبل</option><option value="10080">۱ هفته قبل</option></select></label>
+  <label>ساعت اعلان<input id="reminderTime" type="time" value="09:00"></label>
+  <button class="s" id="notifyPermission">اجازه اعلان دستگاه</button>
+  <p class="msg" id="notifyStatus">اعلان‌ها هنگام اجرای برنامه بررسی می‌شوند؛ برای اعلان در زمان بسته‌بودن کامل برنامه به سرویس بومی Android نیاز است.</p>
+ </div>
+ <div class="card f"><b>امنیت، پشتیبانی و نگهداری اطلاعات</b>
+  <div class="security-info"><div><small>تعداد فاکتورهای ذخیره‌شده</small><b id="sinfo"></b></div><div><small>روش نگهداری</small><b>محلی روی دستگاه</b></div></div>
+  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در نسخه پشتیبان قرار نمی‌گیرد)<input id="key" type="password" autocomplete="off"></label>
+  <div class="backup-folder-card"><small>محل ذخیره نسخه‌های پشتیبان و خروجی‌ها</small><b id="backupFolderName">پوشه دانلود دستگاه</b><p id="backupLocationInfo">در صورت پشتیبانی مرورگر می‌توان پوشه‌ای اختصاصی انتخاب کرد؛ در غیر این صورت فایل پشتیبان در دانلودها ذخیره می‌شود.</p></div>
+  <h3>ذخیره‌سازی خودکار نسخه پشتیبان</h3>
+  <label><span><input type="checkbox" id="autoBackupEnabled" style="width:auto"> فعال‌سازی پشتیبان‌گیری خودکار</span></label>
+  <label>بازه زمانی ذخیره‌سازی<select id="backupInterval"><option value="3600000">هر ۱ ساعت</option><option value="21600000">هر ۶ ساعت</option><option value="43200000">هر ۱۲ ساعت</option><option value="86400000">روزانه</option><option value="604800000">هفتگی</option></select></label>
+  <div class="security-info"><div><small>آخرین نسخه پشتیبان</small><b id="lastBackupAt">هنوز تهیه نشده</b></div><div><small>وضعیت برنامه‌ریزی</small><b id="autoBackupStatus">غیرفعال</b></div></div>
+  <p class="msg">پشتیبان‌گیری زمان‌بندی‌شده هنگام اجرای برنامه انجام می‌شود. برای اجرای مستقل در پس‌زمینه و هنگام بسته‌بودن کامل برنامه، به سرویس زمان‌بندی بومی Android نیاز است.</p>
   <div class="ex"><button class="s" id="pick">انتخاب پوشه</button><button class="s" id="unpick">حذف پوشه</button></div>
-  <button class="p" id="bk">پشتیبان‌گیری همین حالا</button>
+  <button class="p" id="bk">تهیه نسخه پشتیبان همین حالا</button>
   <label>بازیابی از فایل پشتیبان<input id="rs" type="file" accept=".json,application/json"></label>
   <label>بازیابی از نسخه‌های داخلی اپ<select id="cp"></select></label>
   <button class="s" id="cpr">بازیابی نسخه انتخاب‌شده</button>
-  <p class="msg" id="smsg"></p></div>
+  <p class="msg" id="dinfo"></p><p class="msg" id="smsg"></p>
+  <div class="security-warning"><b>نکته امنیتی مهم</b><p>فایل پشتیبان شامل اطلاعات مالی مشتریان و ممکن است شامل تصویر فاکتورها باشد. آن را در فضای امن نگهداری کنید و برای دیگران ارسال نکنید. کلید API از پشتیبان حذف می‌شود. اطلاعات در این نسخه روی دستگاه ذخیره می‌شود و رمزنگاری سرتاسری یا همگام‌سازی ابری فعال نیست.</p></div>
+ </div>
+ <div class="card f"><b>تماس با پشتیبان</b><p class="msg">برای گزارش مشکل یا دریافت راهنمایی:</p><a href="mailto:n.razaniemail@gmail.com">n.razaniemail@gmail.com</a><p class="msg">نیکا — مدیریت فاکتورهای فروش طلا و اقساط</p></div>
 </section>
 </main>
 <nav><button data-t="inv" class="on">ثبت فاکتور</button><button data-t="dash">داشبورد</button><button data-t="port">پورتفو</button><button data-t="set">تنظیمات</button></nav>
 <div id="pa"></div>
 <script>
 const K="nika-v1",MODEL="claude-sonnet-5-5";
-let S={deals:[],set:{key:"",theme:"auto",auto:0,last:0,lastInt:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
+let S={deals:[],set:{key:"",theme:"auto",accent:"gold",customAccent:"#8a6414",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,reminderMinutes:60,reminderTime:"09:00",notifyLog:{},autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
 try{const j=JSON.parse(localStorage.getItem(K));if(j)S={deals:j.deals||[],set:{...S.set,...j.set,gfx:{...S.set.gfx,...(j.set||{}).gfx}}}}catch(e){}
 const $=i=>document.getElementById(i),save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const fa=n=>Math.round(n).toLocaleString("fa-IR");
@@ -163,12 +202,15 @@ function pData(){const t=T();let sales=0,pre=0,rec=0,rem=0,lateA=0,prof=0;const 
 const mn=k=>new Date(Math.floor(k/100),k%100,1).toLocaleDateString("fa-IR",{year:"numeric",month:"long"});
 function rPort(){const p=pData(),mx=Math.max(1,...p.ks.map(k=>p.m[k]));
  $("pl").innerHTML=`<div class="card">${[["مجموع فروش (نقدی)",p.sales],["سود قراردادی کل",p.prof],["پیش‌پرداخت‌های دریافتی",p.pre],["اقساط دریافتی",p.rec],["کل دریافتی",p.pre+p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>`<div class="row"><span>${r[0]}</span><b>${fa(r[1])}</b></div>`).join("")}</div><div class="card"><b>پیش‌بینی دریافتی ماه‌های آینده</b>${p.ks.map(k=>`<div class="deal"><div class="top"><span>${mn(k)}</span><b>${fa(p.m[k])}</b></div><div class="bar"><i style="width:${p.m[k]/mx*100}%"></i></div></div>`).join("")||'<p class="msg">قسط معوقه‌ای در پیش رو نیست.</p>'}</div>`}
-async function rSet(){$("key").value=S.set.key;$("theme").value=S.set.theme;$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;
- $("sinfo").textContent=`${fa(S.deals.length)} فاکتور در حافظه محلی این دستگاه ذخیره شده است.`;
- const fs=!!window.showDirectoryPicker;$("auto").value=String(S.set.auto);$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;
- $("dinfo").textContent=(S.set.dirName?`پوشه پشتیبان: ${S.set.dirName}. `:"")+(fs?"":"انتخاب پوشه در مرورگر اندروید پشتیبانی نمی‌شود؛ فایل‌ها در پوشه دانلودها ذخیره می‌شوند و انتخاب پوشه با نسخه APK ممکن می‌شود. ")+(S.set.last?"آخرین پشتیبان: "+new Date(S.set.last).toLocaleString("fa-IR"):"هنوز پشتیبانی گرفته نشده.");
- try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>`<option value="${i}">${new Date(x.t).toLocaleString("fa-IR")}</option>`).join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
-function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}
+async function rSet(){$("key").value=S.set.key;$("notify").checked=S.set.notify!==false;$("reminderMinutes").value=String(S.set.reminderMinutes??60);$("reminderTime").value=S.set.reminderTime||"09:00";$("notifyStatus").textContent=("Notification" in window)?(Notification.permission==="granted"?"مجوز اعلان فعال است.":"اعلان‌ها هنگام اجرای برنامه بررسی می‌شوند؛ مجوز دستگاه را فعال کنید."):"این محیط اعلان‌های وب را پشتیبانی نمی‌کند.";$("theme").value=S.set.theme;$("accent").value=S.set.accent||"gold";$("density").value=S.set.density||"comfortable";$("font").value=S.set.font||"vazirmatn";$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;$("autoBackupEnabled").checked=!!S.set.autoBackupEnabled;$("backupInterval").value=String(S.set.backupInterval||86400000);
+ $("sinfo").textContent=fa(S.deals.length)+" فاکتور";
+ const fs=!!window.showDirectoryPicker;$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;$("backupFolderName").textContent=S.set.dirName||"پوشه دانلود دستگاه";$("backupLocationInfo").textContent=fs?"در صورت انتخاب پوشه، نسخه‌ها در همان مسیر ذخیره می‌شوند.":"مرورگر فعلی انتخاب مستقیم پوشه را پشتیبانی نمی‌کند؛ خروجی دستی در دانلودها ذخیره می‌شود.";
+ $("lastBackupAt").textContent=S.set.lastBackupAt?new Date(S.set.lastBackupAt).toLocaleString("fa-IR"):"هنوز تهیه نشده";$("autoBackupStatus").textContent=S.set.autoBackupEnabled?"فعال (هنگام اجرای برنامه)":"غیرفعال";
+ const palette=["#000000","#d6b36b","#56c4b6","#82aeea","#e49baa","#9b7bea","#58a66b","#ed9148","#e5c84b","#34495e","#607d8b","#00a6a6","#0077b6","#4361ee","#7209b7","#b5179e","#f72585","#e76f51","#f4a261","#2a9d8f","#8ab17d","#bc6c25","#6d597a","#adb5bd"];
+ const paint=(id,key,value)=>$(id).innerHTML=palette.map(c=>'<button type="button" class="color-swatch '+(String(value||"").toLowerCase()===c?"selected":"")+'" data-color-key="'+key+'" data-color-value="'+c+'" style="--swatch:'+c+'" aria-label="'+c+'" title="'+c+'"></button>').join("");
+ paint("pagePalette","pageBackground",S.set.pageBackground);paint("accentPalette","customAccent",S.set.customAccent||"#8a6414");paint("iconPalette","iconColor",S.set.iconColor||"#000000");
+ try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>'<option value="'+i+'">'+new Date(x.t).toLocaleString("fa-IR")+'</option>').join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
+function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches),root=document.documentElement;root.dataset.theme=d?"dark":"light";root.dataset.accent=S.set.accent||"gold";root.dataset.density=S.set.density||"comfortable";root.dataset.font=S.set.font||"vazirmatn";const colors={gold:d?"#e0b94d":"#8a6414",teal:"#168f85",blue:"#3978c8",rose:"#bd657e",purple:"#8664bd",green:"#398653",orange:"#c76b22",cyan:"#168e9b"};root.style.setProperty("--g",S.set.customAccent||colors[S.set.accent]||colors.gold);if(S.set.pageBackground)root.style.setProperty("--bg",S.set.pageBackground);else root.style.removeProperty("--bg");root.style.setProperty("--icon-color",S.set.iconColor||"var(--g)") }
 function render(){({inv:rInv,dash:rDash,port:rPort,set:rSet})[tab]();document.body.className=Object.keys(S.set.gfx).filter(k=>!S.set.gfx[k]).map(k=>"ng-"+k).join(" ");theme()}
 function show(t){tab=t;document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("on",e.id==t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==t));render()}
 
@@ -244,30 +286,43 @@ document.addEventListener("click",e=>{
  if(b.dataset.open!=null)open=open===b.dataset.open?null:b.dataset.open;
  else{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(z=>z.id===id);d.paid[i]=!d.paid[i];save()}
  render()});
+$("notify").onchange=e=>{S.set.notify=e.target.checked;save();if(e.target.checked)checkInstallmentNotifications();rSet()};
+$("reminderMinutes").onchange=e=>{S.set.reminderMinutes=Number(e.target.value);S.set.notifyLog={};save()};
+$("reminderTime").onchange=e=>{S.set.reminderTime=e.target.value;S.set.notifyLog={};save()};
+$("notifyPermission").onclick=async()=>{if(!("Notification" in window)){$("notifyStatus").textContent="این محیط اعلان‌های وب را پشتیبانی نمی‌کند.";return}try{const p=await Notification.requestPermission();$("notifyStatus").textContent=p==="granted"?"مجوز اعلان فعال شد.":"مجوز اعلان داده نشد.";if(p==="granted")checkInstallmentNotifications()}catch(e){$("notifyStatus").textContent="دریافت مجوز اعلان ممکن نشد."}};
 $("key").onchange=e=>{S.set.key=e.target.value.trim();save()};
 $("theme").onchange=e=>{S.set.theme=e.target.value;save();theme()};
+$("accent").onchange=e=>{S.set.accent=e.target.value;S.set.customAccent="";save();theme()};
+$("density").onchange=e=>{S.set.density=e.target.value;save();theme()};
+$("font").onchange=e=>{S.set.font=e.target.value;save();theme()};
 ["dash","port"].forEach(k=>$("g_"+k).onchange=e=>{S.set.gfx[k]=e.target.checked?1:0;save();render()});
-const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
-const snap=()=>JSON.stringify({deals:S.deals,set:{...S.set,key:undefined,dirName:undefined}}),DAY=864e5;
-async function folderWrite(h,name,json,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;
- const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(json);await w.close();return true}
-async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshift({t:Date.now(),json});await idb("set","copies",c.slice(0,7))}catch(e){}}
-async function backupNow(manual){const json=snap(),name=`nika-backup-${iso()}.json`;let where="";
- try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){}
- await addCopy(json);S.set.lastInt=Date.now();
- if(!where&&manual){dl(name,json,"application/json");where="dl"}
- if(where)S.set.last=Date.now();save();bnr();return where}
-function bnr(){const due=S.set.auto>0&&S.deals.length>0&&Date.now()-S.set.last>=S.set.auto*DAY;$("bn").hidden=!due;if(due)$("bnt").textContent="زمان پشتیبان‌گیری خودکار رسیده است."}
-async function autoTick(){if(S.set.auto>0&&Date.now()-S.set.lastInt>=S.set.auto*DAY)await backupNow(false);bnr()}
-function applyBackup(t){const j=JSON.parse(t);if(!Array.isArray(j.deals))throw 0;S={deals:j.deals,set:{...S.set,...j.set,key:S.set.key,dirName:S.set.dirName}};save()}
-$("bk").onclick=async()=>{const w=await backupNow(true);$("smsg").textContent=w=="folder"?"پشتیبان در پوشه انتخاب‌شده ذخیره شد.":"فایل پشتیبان در پوشه دانلودها ذخیره شد.";render()};
-$("bnb").onclick=async()=>{await backupNow(true);render()};
-$("auto").onchange=e=>{S.set.auto=Number(e.target.value);save();autoTick()};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-color-key][data-color-value]");if(!b)return;const k=b.dataset.colorKey;S.set[k]=b.dataset.colorValue;if(k==="customAccent")S.set.accent="gold";save();theme();b.parentElement.querySelectorAll(".color-swatch").forEach(x=>x.classList.toggle("selected",x===b))});
+const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("kv"))r.result.createObjectStore("kv")};r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"||m=="keys"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="keys"?o.getAllKeys():m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
+const DAY=864e5;
+async function folderWrite(h,name,content,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(content);await w.close();return true}
+const readBlob=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)});
+const writeDataUrl=data=>fetch(data).then(r=>r.blob());
+async function backupPayload(){const keys=await idb("keys"),attachments=[];for(const k of keys.filter(x=>String(x).startsWith("att:"))){const v=await idb("get",k);if(v&&v.blob)attachments.push({key:k,type:v.type||v.blob.type||"application/octet-stream",name:v.name||k,data:await readBlob(v.blob)})}
+ return JSON.stringify({product:"NikaGold",version:2,createdAt:new Date().toISOString(),deals:S.deals,set:{...S.set,key:undefined,dirName:undefined},attachments},null,2)}
+async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshift({t:Date.now(),json});await idb("set","copies",c.slice(0,7))}catch(e){console.warn("backup copy failed",e)}}
+async function backupNow(manual){const json=await backupPayload(),name="nika-backup-"+iso()+".json";let where="";
+ try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){console.warn("folder backup failed",e)}
+ await addCopy(json);S.set.lastInt=Date.now();if(!where&&manual){dl(name,json,"application/json");where="dl"}S.set.lastBackupAt=Date.now();S.set.last=Date.now();save();bnr();return where}
+function checkInstallmentNotifications(){if(!S.set.notify||!("Notification" in window)||Notification.permission!=="granted")return;const now=new Date(),[hh,mm]=(S.set.reminderTime||"09:00").split(":").map(Number);if(now.getHours()*60+now.getMinutes()<hh*60+mm)return;const offset=Number(S.set.reminderMinutes||0)*60000,log=S.set.notifyLog&&typeof S.set.notifyLog==="object"?S.set.notifyLog:{},items=[];for(const d of S.deals){for(let i=0;i<d.count;i++){if(d.paid[i])continue;const key=d.id+":"+i;if(log[key])continue;const target=due(d,i);target.setHours(hh,mm,0,0);if(now.getTime()>=target.getTime()-offset){items.push({key,name:d.name,amount:stats(d).p,index:i+1});log[key]=Date.now()}}}if(items.length){S.set.notifyLog=log;const preview=items.slice(0,4).map(x=>x.name+" (قسط "+fa(x.index)+")").join("، ");new Notification("یادآوری اقساط نیکا",{body:items.length+" قسط سررسیدشده یا نزدیک به سررسید: "+preview});save()}}
+function bnr(){const due=!!S.set.autoBackupEnabled&&S.deals.length>0&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY);$("bn").hidden=!due;if(due)$("bnt").textContent="موعد تهیه نسخه پشتیبان داخلی رسیده است."}
+async function autoTick(){if(S.set.autoBackupEnabled&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY))await backupNow(false);bnr()}
+async function applyBackup(t){const j=typeof t==="string"?JSON.parse(t):t;if(!j||!Array.isArray(j.deals))throw Error("فایل پشتیبان معتبر نیست");if(j.product&&j.product!=="NikaGold")throw Error("این فایل متعلق به برنامه دیگری است");
+ const restored=[];for(const a of (Array.isArray(j.attachments)?j.attachments:[])){if(!a.key||!String(a.key).startsWith("att:")||!a.data)continue;const blob=await writeDataUrl(a.data);restored.push([a.key,{blob,type:a.type||blob.type,name:a.name||a.key.slice(4)}])}const keys=await idb("keys");for(const k of keys.filter(x=>String(x).startsWith("att:")))await idb("del",k);for(const [k,v] of restored)await idb("set",k,v);
+ const oldKey=S.set.key,oldDir=S.set.dirName;S={deals:j.deals,set:{...S.set,...(j.set||{}),key:oldKey,dirName:oldDir,lastInt:Date.now()}};save();render()}
+$("bk").onclick=async()=>{try{const w=await backupNow(true);$("smsg").textContent=w==="folder"?"نسخه پشتیبان در پوشه انتخاب‌شده ذخیره شد.":"نسخه پشتیبان در دانلودها ذخیره شد.";render()}catch(e){$("smsg").textContent="تهیه پشتیبان ناموفق بود: "+e.message}};
+$("bnb").onclick=async()=>{try{await backupNow(true);render()}catch(e){alert(e.message)}};
+$("autoBackupEnabled").onchange=e=>{S.set.autoBackupEnabled=e.target.checked;save();autoTick();rSet()};
+$("backupInterval").onchange=e=>{S.set.backupInterval=Number(e.target.value);save();rSet()};
 $("pick").onclick=async()=>{try{const h=await showDirectoryPicker({mode:"readwrite"});await idb("set","dir",h);S.set.dirName=h.name;save();rSet()}catch(e){}};
 $("unpick").onclick=async()=>{try{await idb("del","dir")}catch(e){}S.set.dirName="";save();rSet()};
-$("cpr").onclick=async()=>{try{const c=await idb("get","copies");applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="نسخه‌ای برای بازیابی نیست."}};
-$("rs").onchange=async e=>{try{applyBackup(await e.target.files[0].text());$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست."}};
-$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();document.addEventListener("visibilitychange",()=>{if(!document.hidden)autoTick()});
+$("cpr").onclick=async()=>{try{const c=await idb("get","copies");if(!c||!c[$("cp").value])throw Error("نسخه‌ای موجود نیست");if(!confirm("اطلاعات فعلی با نسخه پشتیبان انتخاب‌شده جایگزین شود؟"))return;await applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی نسخه داخلی با موفقیت انجام شد."}catch(x){$("smsg").textContent="بازیابی ناموفق بود: "+x.message}};
+$("rs").onchange=async e=>{try{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>100*1024*1024)throw Error("حجم فایل بیش از ۱۰۰ مگابایت است");if(!confirm("اطلاعات فعلی با فایل پشتیبان جایگزین شود؟"))return;await applyBackup(await f.text());$("smsg").textContent="بازیابی فایل پشتیبان با موفقیت انجام شد."}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست: "+x.message}finally{e.target.value=""}};
+$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();checkInstallmentNotifications();document.addEventListener("visibilitychange",()=>{if(!document.hidden){autoTick();checkInstallmentNotifications();if(tab==="set")rSet()}});setInterval(()=>{if(!document.hidden){autoTick();checkInstallmentNotifications()}},60000);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
