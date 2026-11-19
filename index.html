@@ -243,11 +243,10 @@ function dashAnalytics(){
    const dueDate=due(d,i),amount=Number(q.p)||0,delta=Math.floor((today-dueDate)/864e5);
    if(d.paid[i]){if(dueDate<=today){paidDue++;c.paidDue++}continue}
    unpaid++;
-   if(dueDate<=today){overdue+=amount;overdueCount++;c.overdue+=amount;c.overdueCount++;c.dueCount++;
+   if(dueDate<today){overdue+=amount;overdueCount++;c.overdue+=amount;c.overdueCount++;c.dueCount++;
     if(delta<=30)aging["۱ تا ۳۰ روز"]+=amount;else if(delta<=60)aging["۳۱ تا ۶۰ روز"]+=amount;else aging["بیش از ۶۰ روز"]+=amount;
    }else{
-    if(dueDate.getTime()-today.getTime()<=7*864e5)due7+=amount;
-    if(dueDate.getTime()-today.getTime()<=30*864e5)due30+=amount;
+    const daysAhead=Math.max(0,Math.floor((dueDate-today)/864e5));if(daysAhead<=7)due7+=amount;if(daysAhead<=30)due30+=amount;
     const fk=dueDate.getFullYear()+"-"+dueDate.getMonth();if(future[fk])future[fk].value+=amount;
    }
   }
