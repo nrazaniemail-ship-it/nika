@@ -7,6 +7,10 @@ on:
       - 'app/**'
       - '*.gradle'
       - 'gradle.properties'
+      - 'index.html'
+      - 'sw.js'
+      - 'manifest.webmanifest'
+      - 'icon.png'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
@@ -36,6 +40,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+
+      - name: Bundle current Nika web application
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/assets/www
+          cp index.html manifest.webmanifest sw.js icon.png app/src/main/assets/www/
+          test -s app/src/main/assets/www/index.html
 
       - name: Build debug APK
         run: gradle --no-daemon clean :app:assembleDebug
