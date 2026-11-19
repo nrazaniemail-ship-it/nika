@@ -51,7 +51,11 @@ input[type=date]{direction:ltr;text-align:right}
  <h1>ثبت فاکتور</h1>
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
  <div class="card f">
-  <label>عکس فاکتور (برای پر شدن خودکار فیلدها)<input id="img" type="file" accept="image/*" capture="environment"></label>
+  <b>فاکتور (برای پر شدن خودکار فیلدها)</b>
+  <div class="ex"><button class="s" data-pick="cam">دوربین</button><button class="s" data-pick="gal">گالری</button><button class="s" data-pick="file">فایل</button></div>
+  <input id="i_cam" type="file" accept="image/*" capture="environment" hidden>
+  <input id="i_gal" type="file" accept="image/*" hidden>
+  <input id="i_file" type="file" accept="application/pdf,image/*" hidden>
   <p class="msg" id="imsg"></p>
   <label>نام مشتری<input id="f_name"></label>
   <label>تلفن<input id="f_phone" inputmode="tel"></label>
@@ -133,14 +137,16 @@ function rows(){
 function xl(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows()),"nika");XLSX.writeFile(wb,`nika-${tab}-${iso()}.xlsx`)}
 
 async function readInvoice(f){
- const im=await createImageBitmap(f),sc=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");
- c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
- const data=c.toDataURL("image/jpeg",.85).split(",")[1];
- const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:500,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data}},{type:"text",text:"این تصویر فاکتور خرید طلا است. فقط یک JSON بدون هیچ متن دیگر برگردان با کلیدهای name (نام خریدار)، phone، date (به فرمت YYYY-MM-DD میلادی؛ اگر شمسی است تبدیل کن)، grams (وزن طلا به گرم، عدد)، total (مبلغ کل به تومان، عدد انگلیسی). مقدار نامعلوم را null بگذار."}]}]})});
+ let block;
+ if(f.type=="application/pdf"){const data=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f)});block={type:"document",source:{type:"base64",media_type:"application/pdf",data}}}
+ else{const im=await createImageBitmap(f),sc=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);block={type:"image",source:{type:"base64",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.85).split(",")[1]}}}
+ const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:500,messages:[{role:"user",content:[block,{type:"text",text:"این تصویر فاکتور خرید طلا است. فقط یک JSON بدون هیچ متن دیگر برگردان با کلیدهای name (نام خریدار)، phone، date (به فرمت YYYY-MM-DD میلادی؛ اگر شمسی است تبدیل کن)، grams (وزن طلا به گرم، عدد)، total (مبلغ کل به تومان، عدد انگلیسی). مقدار نامعلوم را null بگذار."}]}]})});
  const j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
  return JSON.parse(j.content.map(x=>x.text||"").join("").replace(/```json|```/g,"").trim())}
 
-$("img").onchange=async e=>{const f=e.target.files[0];if(!f)return;const m=$("imsg");m.className="msg";
+["cam","gal","file"].forEach(k=>$("i_"+k).onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)inv(f)});
+document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>$("i_"+b.dataset.pick).click());
+async function inv(f){const m=$("imsg");m.className="msg";
  if(!S.set.key){m.className="msg e";m.textContent="اول کلید API را در تنظیمات وارد کن.";return}
  m.textContent="در حال خواندن فاکتور…";
  try{const r=await readInvoice(f);
@@ -152,7 +158,7 @@ $("fsave").onclick=()=>{const e=$("ferr"),name=$("f_name").value.trim(),total=nu
  if(!(pre>=0&&pre<total))return e.textContent="پیش‌پرداخت باید کمتر از مبلغ کل باشد.";
  if(!(count>=1&&count<=60))return e.textContent="تعداد اقساط باید بین ۱ تا ۶۰ باشد.";if(!start)return e.textContent="تاریخ اولین قسط را انتخاب کن.";
  S.deals.unshift({id:String(Date.now()),name,phone:$("f_phone").value.trim(),date,grams,total,prepay:pre,count,start,paid:Array(count).fill(false)});save();
- e.textContent="";["f_name","f_phone","f_grams","f_total"].forEach(i=>$(i).value="");$("f_pre").value=0;$("img").value="";$("imsg").textContent="ثبت شد.";rInv()};
+ e.textContent="";["f_name","f_phone","f_grams","f_total"].forEach(i=>$(i).value="");$("f_pre").value=0;$("imsg").textContent="ثبت شد.";rInv()};
 
 document.addEventListener("click",e=>{
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
