@@ -179,6 +179,7 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 #set>.card.f>.settings-section-title.sub{min-height:40px;margin:10px 0 4px;padding:8px 12px;background:color-mix(in srgb,var(--g) 7%,var(--c));border:1px solid color-mix(in srgb,var(--g) 24%,var(--l));border-inline-start:3px solid color-mix(in srgb,var(--g) 75%,var(--l));color:var(--t);font-size:.92rem;font-weight:800;box-shadow:none}
 #set a[href^="mailto:"]{display:block;direction:ltr;text-align:left;color:#fff!important;font-weight:700;unicode-bidi:isolate;text-decoration:none}
 #set a[href^="mailto:"]:focus-visible,#set a[href^="mailto:"]:hover{text-decoration:underline}
+.about-features{display:grid;gap:10px;margin:12px 0}.about-features>div{padding:10px 12px;border:1px solid var(--l);border-radius:10px;background:var(--bg)}.about-features b{display:block;color:var(--g);font-size:.9rem}.about-features .msg{margin:4px 0 0;font-size:.8rem;line-height:1.8}
 </style>
 </head>
 <body>
@@ -264,6 +265,17 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
   <div class="security-warning"><b>نکته امنیتی مهم</b><p>فایل پشتیبان شامل اطلاعات مالی مشتریان و ممکن است شامل تصویر فاکتورها باشد. آن را در فضای امن نگهداری کنید و برای دیگران ارسال نکنید. کلید API از پشتیبان حذف می‌شود. اطلاعات در این نسخه روی دستگاه ذخیره می‌شود و رمزنگاری سرتاسری یا همگام‌سازی ابری فعال نیست.</p></div>
  </div>
  <div class="card f"><div class="settings-section-title">تماس با پشتیبان</div><p class="msg">برای گزارش مشکل یا دریافت راهنمایی:</p><a href="mailto:n.razaniemail@gmail.com">n.razaniemail@gmail.com</a><p class="msg">نیکا — مدیریت فاکتورهای فروش طلا و اقساط</p></div>
+ <div class="card f"><div class="settings-section-title">درباره برنامه</div>
+  <div class="security-info"><div><small>شماره نسخه</small><b>۱.۰.۰</b></div><div><small>ورژن کد برنامه (Version Code)</small><b>۱</b></div></div>
+  <p class="msg">نیکا، دستیار مدیریت فروش طلا و خریدهای اقساطی است؛ ابزاری برای ثبت و سامان‌دهی فاکتورها، پیگیری تعهدات مشتریان و کنترل وضعیت مالی کسب‌وکار.</p>
+  <div class="about-features">
+   <div><b>مدیریت فاکتورها و مشتریان</b><p class="msg">ثبت مشخصات مشتری و کالا، پیش‌پرداخت، تعداد و مبلغ اقساط؛ همراه با امکان ورود اطلاعات از تصویر فاکتور.</p></div>
+   <div><b>پیگیری اقساط و سررسیدها</b><p class="msg">مشاهده اقساط پرداخت‌شده، سررسیدهای پیش‌رو و مطالبات معوق در تقویم و بخش مشتریان، همراه با یادآوری اعلان‌ها.</p></div>
+   <div><b>داشبورد و گزارش‌های مالی</b><p class="msg">نمایش آمار فروش، دریافتی‌ها، مانده مطالبات، جریان نقدینگی و تحلیل سود و نرخ بازده.</p></div>
+   <div><b>گزارش‌گیری و نگهداری اطلاعات</b><p class="msg">تهیه گزارش PDF و Excel، پشتیبان‌گیری و بازیابی اطلاعات و تنظیم ظاهر برنامه متناسب با سلیقه کاربر.</p></div>
+  </div>
+  <p class="msg">اطلاعات این نسخه به‌صورت محلی روی دستگاه نگهداری می‌شود؛ برای جلوگیری از ازدست‌رفتن اطلاعات، نسخه پشتیبان منظم تهیه کنید.</p>
+ </div>
 </section>
 </main>
 <nav aria-label="ناوبری اصلی"><button type="button" data-t="inv" class="on" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 11h6M9 15h6M9 18h4"/></svg><span>فاکتور</span></button><button type="button" data-t="dash"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1z"/><path d="M16 5.5a3 3 0 0 1 0 5.8M18 14a5 5 0 0 1 3 5v1"/></svg><span>مشتریان</span></button><button type="button" data-t="port"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18v13H3zM3 11h18M8 7V4h8v3"/><path d="M8 15h3"/></svg><span>پورتفو</span></button><button type="button" data-t="finance"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M7 15h3M16 15h1"/></svg><span>مالی</span></button><button type="button" data-t="calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg><span>تقویم</span></button><button type="button" data-t="set"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.6.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.6-.9l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.9l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.6-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.6.9l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8z"/></svg><span>تنظیمات</span></button></nav>
