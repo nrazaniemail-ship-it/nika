@@ -98,11 +98,12 @@ button.s{background:transparent;border:1px solid var(--l);color:var(--t);border-
 nav{background:var(--c);border-top:1px solid var(--l)}
 nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
 .msg{color:var(--m)}.tag{border-radius:20px}
-.app-header{height:64px;background:var(--c);border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:6}
+.app-header{height:72px;background:var(--c);border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:6}
 .app-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--t)}
 .app-brand-mark{width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--g);display:grid;place-items:center;font-weight:900}
-.header-persian-date{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:.88rem;font-weight:800;color:var(--g);white-space:nowrap;font-variant-numeric:tabular-nums;pointer-events:none}
-@media(max-width:380px){.header-persian-date{font-size:.74rem}}
+.header-persian-date{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;grid-template-rows:auto 1px auto;justify-items:stretch;gap:3px;width:max-content;max-width:calc(100% - 112px);font-size:.76rem;font-weight:800;color:var(--g);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.25;text-align:center;pointer-events:none}.header-date-divider{display:block;width:100%;height:1px;background:color-mix(in srgb,var(--g) 75%,var(--l));border-radius:1px}.header-gregorian-date{font-size:.72rem;font-weight:700;color:var(--t);direction:ltr}
+@media(max-width:650px){.app-header{height:70px}}
+@media(max-width:380px){.header-persian-date{font-size:.68rem}.header-gregorian-date{font-size:.64rem}}
 .theme-toggle{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:1px solid var(--l);border-radius:11px;background:var(--panel2);color:var(--g);display:grid;place-items:center;padding:0}
 .theme-toggle svg{width:20px;height:20px}
 @media(max-width:650px){.app-header{height:60px;padding:0 14px}.theme-toggle{left:12px;width:38px;height:38px}main{padding:18px 13px 110px}}
@@ -180,7 +181,7 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 </style>
 </head>
 <body>
-<header class="app-header"><div class="app-brand"><span class="app-brand-mark">ن</span><span>نیکا</span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی"></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
+<header class="app-header"><div class="app-brand"><span class="app-brand-mark">ن</span><span>نیکا</span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
 <main>
 <div id="appUpdate" role="status" aria-live="polite"><p>نسخه جدید نیکا آماده است.</p><button type="button" class="p" id="applyAppUpdate">به‌روزرسانی</button></div>
 <div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
@@ -538,7 +539,7 @@ $("pick").onclick=async()=>{try{const h=await showDirectoryPicker({mode:"readwri
 $("unpick").onclick=async()=>{try{await idb("del","dir")}catch(e){}S.set.dirName="";save();rSet()};
 $("cpr").onclick=async()=>{try{const c=await idb("get","copies");if(!c||!c[$("cp").value])throw Error("نسخه‌ای موجود نیست");if(!confirm("اطلاعات فعلی با نسخه پشتیبان انتخاب‌شده جایگزین شود؟"))return;await applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی نسخه داخلی با موفقیت انجام شد."}catch(x){$("smsg").textContent="بازیابی ناموفق بود: "+x.message}};
 $("rs").onchange=async e=>{try{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>100*1024*1024)throw Error("حجم فایل بیش از ۱۰۰ مگابایت است");if(!confirm("اطلاعات فعلی با فایل پشتیبان جایگزین شود؟"))return;await applyBackup(await f.text());$("smsg").textContent="بازیابی فایل پشتیبان با موفقیت انجام شد."}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست: "+x.message}finally{e.target.value=""}};
-function updateHeaderPersianDate(){const el=$("headerPersianDate");if(!el)return;try{el.textContent=new Intl.DateTimeFormat("fa-IR-u-ca-persian",{day:"numeric",month:"long",year:"numeric"}).format(new Date())}catch(e){el.textContent=jstr(new Date())}}
+function updateHeaderPersianDate(){const now=new Date(),fa=$("headerPersianDateValue"),greg=$("headerGregorianDate");if(!fa||!greg)return;try{fa.textContent=new Intl.DateTimeFormat("fa-IR-u-ca-persian",{day:"numeric",month:"long",year:"numeric"}).format(now)}catch(e){fa.textContent=jstr(now)}try{greg.textContent=new Intl.DateTimeFormat("fa-IR-u-ca-gregory",{day:"numeric",month:"short",year:"numeric"}).format(now)}catch(e){greg.textContent=new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric"}).format(now)}}
 updateHeaderPersianDate();
 $("f_date").value=jstr(new Date());startSync();calc();render();autoTick();checkInstallmentNotifications();document.addEventListener("visibilitychange",()=>{if(!document.hidden){autoTick();checkInstallmentNotifications();if(tab==="set")rSet()}});setInterval(()=>{if(!document.hidden){autoTick();checkInstallmentNotifications();updateHeaderPersianDate()}},60000);
 if("serviceWorker"in navigator){
