@@ -1,5 +1,5 @@
 const PREFIX="nika-";
-const FILES=["./","index.html","manifest.webmanifest","icon.svg"];
+const FILES=["./","index.html","manifest.webmanifest","icon.png"];
 async function versionedCacheName(){
  const response=await fetch(self.location.href,{cache:"no-store"});
  if(!response.ok)throw new Error("Cannot read service worker source");
