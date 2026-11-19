@@ -69,35 +69,38 @@ input[type=date]{direction:ltr;text-align:right}
 .security-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.security-info>div,.backup-folder-card{background:var(--bg);border:1px solid var(--l);border-radius:10px;padding:10px}.security-info small,.backup-folder-card small{display:block;color:var(--m);font-size:.75rem}.security-info b,.backup-folder-card b{display:block;margin-top:4px;overflow-wrap:anywhere}.backup-folder-card p,.security-warning p{font-size:.8rem;line-height:1.8;color:var(--m);margin:7px 0 0}.security-warning{border:1px solid var(--mid);background:var(--c);border-radius:10px;padding:12px}.security-warning b{color:var(--mid)}.security-warning p{color:var(--t)}#set h3{font-size:.95rem;margin:8px 0}
 nav button.on{color:var(--icon-color,var(--g))}
 
-/* Pooshe-inspired default visual system */
-:root{--bg:#0b1422;--c:#142238;--t:#edf2f8;--m:#9aabc0;--l:#293b52;--g:#d6b36b;--gt:#172333;--bad:#ef9a9a;--bb:#482b35;--ok:#a6dfba;--mid:#f1d98e}
-:root[data-theme=dark]{--bg:#0b1422;--c:#142238;--t:#edf2f8;--m:#9aabc0;--l:#293b52;--g:#d6b36b;--gt:#172333;--bad:#ef9a9a;--bb:#482b35;--ok:#a6dfba;--mid:#f1d98e}
-:root[data-theme=light]{--bg:#f3f5f8;--c:#fff;--t:#1b2b40;--m:#687b91;--l:#dfe5ec;--g:#9a742e;--gt:#fff;--bad:#a33c48;--bb:#f8e7e9;--ok:#24744d;--mid:#8c681e}
-:root[data-accent=teal]{--g:#56c4b6}:root[data-accent=blue]{--g:#82aeea}:root[data-accent=rose]{--g:#e49baa}:root[data-accent=purple]{--g:#b49bea}:root[data-accent=green]{--g:#78c58b}:root[data-accent=orange]{--g:#ed9148}:root[data-accent=cyan]{--g:#56cbd3}
-body{font-size:14px;background:var(--bg);color:var(--t)}
-main{max-width:1080px;padding:24px 22px 110px}
+/* Exact Pooshe design tokens adapted to Nika */
+:root{--bg:#0b1422;--c:#142238;--panel2:#1b2c43;--t:#edf2f8;--m:#9aabc0;--l:#293b52;--g:#d6b36b;--gt:#172333;--soft:#4b402b;--ok:#a6dfba;--okbg:#204536;--mid:#f1d98e;--midbg:#4a3f27;--bad:#ef9a9a;--bb:#482b35}
+:root[data-theme=dark]{--bg:#0b1422;--c:#142238;--panel2:#1b2c43;--t:#edf2f8;--m:#9aabc0;--l:#293b52;--g:#d6b36b;--gt:#172333;--soft:#4b402b;--ok:#a6dfba;--okbg:#204536;--mid:#f1d98e;--midbg:#4a3f27;--bad:#ef9a9a;--bb:#482b35}
+:root[data-theme=light]{--bg:#f3f5f8;--c:#fff;--panel2:#f7f8fa;--t:#1b2b40;--m:#687b91;--l:#dfe5ec;--g:#9a742e;--gt:#fff;--soft:#f5eddc;--ok:#24744d;--okbg:#e0f2e7;--mid:#8c681e;--midbg:#fff3cf;--bad:#a33c48;--bb:#f8e7e9}
+:root[data-accent=teal]{--g:#56c4b6;--soft:#1d4545}:root[data-accent=blue]{--g:#82aeea;--soft:#233d61}:root[data-accent=rose]{--g:#e49baa;--soft:#512d3c}:root[data-accent=purple]{--g:#b49bea;--soft:#40345c}:root[data-accent=green]{--g:#78c58b;--soft:#294b37}:root[data-accent=orange]{--g:#ed9148;--soft:#543a29}:root[data-accent=cyan]{--g:#56cbd3;--soft:#21474c}
+body{background:var(--bg);color:var(--t);font-family:"Vazirmatn Variable",Vazirmatn,system-ui,sans-serif;font-size:14px}
+main{max-width:1080px;margin:0 auto;padding:24px 25px 110px}
 .card{background:var(--c);border:1px solid var(--l);border-radius:15px;padding:16px;box-shadow:0 2px 10px #00000012}
 .card.lt{border-inline-start:4px solid var(--bad)}
-input,select{background:var(--c);border:1px solid var(--l);color:var(--t);border-radius:10px}
-button.p{background:var(--g);color:var(--gt);border:1px solid var(--g);border-radius:10px}
+input,select{background:var(--panel2);border:1px solid var(--l);color:var(--t);border-radius:10px}
+button.p{background:var(--g);color:var(--gt);border:1px solid var(--g);border-radius:10px;font-weight:700}
 button.s{background:transparent;border:1px solid var(--l);color:var(--t);border-radius:10px}
-.sum>div,.metric-grid>div,.invoice-total>div{background:var(--c);border:1px solid var(--l);border-radius:13px}
-.ins,.cal-day,.cal-item{background:var(--c);border-color:var(--l);color:var(--t);border-radius:12px}
-.cal-day.has-due{background:color-mix(in srgb,var(--ok) 18%,var(--c));border-color:var(--ok);color:var(--ok)}
+.sum>div,.metric-grid>div,.invoice-total>div{background:var(--c);border:1px solid var(--l);border-radius:14px}
+.ins,.cal-day,.cal-item{background:var(--panel2);border-color:var(--l);color:var(--t);border-radius:11px}
+.ins.done{background:var(--okbg);border-color:var(--ok)}.ins.late{background:var(--bb);border-color:var(--bad)}
+.cal-day.has-due{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
 .cal-day.has-late{background:var(--bb);border-color:var(--bad);color:var(--bad)}
 nav{background:var(--c);border-top:1px solid var(--l)}
-nav button{color:var(--m)}
-nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
-.msg{color:var(--m)}
-.tag{border-radius:20px}
-.report-brand{display:block;width:100%;text-align:center;font-size:22px;font-weight:800;letter-spacing:.2px;padding:0 0 14px;margin:0 0 14px;border-bottom:2px solid #d6b36b;color:#172333;direction:rtl}
-@media(max-width:650px){main{padding:18px 13px 110px}.report-brand{font-size:19px}}
-@media print{.report-brand{color:#111!important;border-color:#777!important;font-size:20px!important;text-align:center!important;margin-bottom:14px!important}}
+nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
+.msg{color:var(--m)}.tag{border-radius:20px}
+.app-header{height:64px;background:var(--c);border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:6}
+.app-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--t)}
+.app-brand-mark{width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--g);display:grid;place-items:center;font-weight:900}
+.theme-toggle{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:1px solid var(--l);border-radius:11px;background:var(--panel2);color:var(--g);display:grid;place-items:center;padding:0}
+.theme-toggle svg{width:20px;height:20px}
+@media(max-width:650px){.app-header{height:60px;padding:0 14px}.theme-toggle{left:12px;width:38px;height:38px}main{padding:18px 13px 110px}}
 
 .invoice-card{position:relative;padding-top:48px}.invoice-actions{position:absolute;top:9px;left:10px;display:flex;gap:6px;direction:ltr}.invoice-actions button{font-size:12px;padding:6px 10px;min-height:30px}.invoice-actions .danger{color:var(--bad);border-color:var(--bad)}
 </style>
 </head>
 <body>
+<header class="app-header"><div class="app-brand"><span class="app-brand-mark">ن</span><span>نیکا</span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
 <main>
 <div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
 <section id="inv" class="tab on">
@@ -232,7 +235,7 @@ async function rSet(){$("key").value=S.set.key;$("notify").checked=S.set.notify!
  const paint=(id,key,value)=>$(id).innerHTML=palette.map(c=>'<button type="button" class="color-swatch '+(String(value||"").toLowerCase()===c?"selected":"")+'" data-color-key="'+key+'" data-color-value="'+c+'" style="--swatch:'+c+'" aria-label="'+c+'" title="'+c+'"></button>').join("");
  paint("pagePalette","pageBackground",S.set.pageBackground);paint("accentPalette","customAccent",S.set.customAccent||"#8a6414");paint("iconPalette","iconColor",S.set.iconColor||"#000000");
  try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>'<option value="'+i+'">'+new Date(x.t).toLocaleString("fa-IR")+'</option>').join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
-function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches),root=document.documentElement;root.dataset.theme=d?"dark":"light";root.dataset.accent=S.set.accent||"gold";root.dataset.density=S.set.density||"comfortable";root.dataset.font=S.set.font||"vazirmatn";const colors={gold:d?"#d6b36b":"#9a742e",teal:"#168f85",blue:"#3978c8",rose:"#bd657e",purple:"#8664bd",green:"#398653",orange:"#c76b22",cyan:"#168e9b"};root.style.setProperty("--g",S.set.customAccent||colors[S.set.accent]||colors.gold);if(S.set.pageBackground)root.style.setProperty("--bg",S.set.pageBackground);else root.style.removeProperty("--bg");root.style.setProperty("--icon-color",S.set.iconColor||"var(--g)") }
+function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches),root=document.documentElement;root.dataset.theme=d?"dark":"light";root.dataset.accent=S.set.accent||"gold";root.dataset.density=S.set.density||"comfortable";root.dataset.font=S.set.font||"vazirmatn";const colors={gold:d?"#d6b36b":"#9a742e",teal:"#168f85",blue:"#3978c8",rose:"#bd657e",purple:"#8664bd",green:"#398653",orange:"#c76b22",cyan:"#168e9b"};root.style.setProperty("--g",S.set.customAccent||colors[S.set.accent]||colors.gold);if(S.set.pageBackground)root.style.setProperty("--bg",S.set.pageBackground);else root.style.removeProperty("--bg");root.style.setProperty("--icon-color",S.set.iconColor||"var(--g)");const ti=$("themeIcon");if(ti)ti.innerHTML=d?'<path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/>' : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>' }
 function render(){({inv:rInv,dash:rDash,port:rPort,finance:rFinance,calendar:rCalendar,set:rSet})[tab]();document.body.className=Object.keys(S.set.gfx).filter(k=>!S.set.gfx[k]).map(k=>"ng-"+k).join(" ");theme()}
 function show(t){tab=t;document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("on",e.id==t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==t));render()}
 
@@ -356,7 +359,7 @@ $("reminderMinutes").onchange=e=>{S.set.reminderMinutes=Number(e.target.value);S
 $("reminderTime").onchange=e=>{S.set.reminderTime=e.target.value;S.set.notifyLog={};save()};
 $("notifyPermission").onclick=async()=>{if(!("Notification" in window)){$("notifyStatus").textContent="این محیط اعلان‌های وب را پشتیبانی نمی‌کند.";return}try{const p=await Notification.requestPermission();$("notifyStatus").textContent=p==="granted"?"مجوز اعلان فعال شد.":"مجوز اعلان داده نشد.";if(p==="granted")checkInstallmentNotifications()}catch(e){$("notifyStatus").textContent="دریافت مجوز اعلان ممکن نشد."}};
 $("key").onchange=e=>{S.set.key=e.target.value.trim();save()};
-$("theme").onchange=e=>{S.set.theme=e.target.value;save();theme()};
+$("theme").onchange=e=>{S.set.theme=e.target.value;save();theme()};$("themeToggle").onclick=()=>{S.set.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";$("theme").value=S.set.theme;save();theme()};
 $("accent").onchange=e=>{S.set.accent=e.target.value;S.set.customAccent="";save();theme()};
 $("density").onchange=e=>{S.set.density=e.target.value;save();theme()};
 $("font").onchange=e=>{S.set.font=e.target.value;save();theme()};
