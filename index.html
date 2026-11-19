@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#8a6414">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
-<title>نیکا</title>
+<title>Nika</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -180,10 +180,11 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 #set a[href^="mailto:"]{display:block;direction:ltr;text-align:left;color:#fff!important;font-weight:700;unicode-bidi:isolate;text-decoration:none}
 #set a[href^="mailto:"]:focus-visible,#set a[href^="mailto:"]:hover{text-decoration:underline}
 .about-features{display:grid;gap:10px;margin:12px 0}.about-features>div{padding:10px 12px;border:1px solid var(--l);border-radius:10px;background:var(--bg)}.about-features b{display:block;color:var(--g);font-size:.9rem}.about-features .msg{margin:4px 0 0;font-size:.8rem;line-height:1.8}
+ .app-brand-name{display:inline-flex;align-items:flex-start;gap:5px;direction:ltr}.app-version-badge{position:relative;top:-.38em;color:#39ff14;font-size:.55em;font-weight:900;line-height:1;text-shadow:0 0 5px rgba(57,255,20,.38);letter-spacing:.02em}
 </style>
 </head>
 <body>
-<header class="app-header"><div class="app-brand"><span class="app-brand-mark">ن</span><span>نیکا</span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
+<header class="app-header"><div class="app-brand"><span class="app-brand-mark">N</span><span class="app-brand-name">Nika<sup class="app-version-badge">1.0.0</sup></span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
 <main>
 <div id="appUpdate" role="status" aria-live="polite"><p>نسخه جدید نیکا آماده است.</p><button type="button" class="p" id="applyAppUpdate">به‌روزرسانی</button></div>
 <div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
