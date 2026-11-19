@@ -47,6 +47,23 @@ input[type=date]{direction:ltr;text-align:right}
 @media print{nav,.ex,button.head~*,.p,.s{display:none}.tab{display:none!important}.tab.on{display:block!important}body{background:#fff;color:#000}.ins{border-color:#999}
 .printall main,.printall nav{display:none!important}.printall #pa{display:block}
 #pa h1{font-size:16px}#pa h2{font-size:13px;margin:14px 0 6px}#pa table{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:12px}#pa th,#pa td{border:1px solid #888;padding:3px 5px;text-align:start}#pa th{background:#eee}}
+
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/parastoo.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/samim.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/sahel.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/gandom.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/shabnam.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/estedad.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-naskh-arabic.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-kufi-arabic.css");
+@import url("https://cdn.jsdelivr.net/npm/next-persian-fonts@1.5.0/css/noto-sans-arabic.css");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap");
+:root[data-accent=teal]{--g:#168f85}:root[data-accent=blue]{--g:#3978c8}:root[data-accent=rose]{--g:#bd657e}:root[data-accent=purple]{--g:#8664bd}:root[data-accent=green]{--g:#398653}:root[data-accent=orange]{--g:#c76b22}:root[data-accent=cyan]{--g:#168e9b}
+:root[data-density=compact] .card{padding:10px;margin-bottom:7px}:root[data-density=compact] main{padding-top:10px}:root[data-density=compact] input,:root[data-density=compact] select{padding:8px}
+:root[data-font=parastoo] body{font-family:Parastoo,system-ui,sans-serif}:root[data-font=samim] body{font-family:Samim,system-ui,sans-serif}:root[data-font=sahel] body{font-family:Sahel,system-ui,sans-serif}:root[data-font=gandom] body{font-family:Gandom,system-ui,sans-serif}:root[data-font=shabnam] body{font-family:Shabnam,system-ui,sans-serif}:root[data-font=estedad] body{font-family:Estedad,system-ui,sans-serif}:root[data-font=noto-naskh] body{font-family:"Noto Naskh Arabic",system-ui,sans-serif}:root[data-font=noto-kufi] body{font-family:"Noto Kufi Arabic",system-ui,sans-serif}:root[data-font=noto-sans] body{font-family:"Noto Sans Arabic",system-ui,sans-serif}:root[data-font=cairo] body{font-family:Cairo,system-ui,sans-serif}:root[data-font=system] body{font-family:system-ui,sans-serif}
+.color-setting{display:grid;gap:9px}.color-palette{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}.color-swatch{height:30px;min-width:0;border:2px solid var(--l);border-radius:9px;background:var(--swatch);padding:0}.color-swatch.selected{outline:3px solid var(--g);outline-offset:2px;border-color:var(--c)}
+.security-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.security-info>div,.backup-folder-card{background:var(--bg);border:1px solid var(--l);border-radius:10px;padding:10px}.security-info small,.backup-folder-card small{display:block;color:var(--m);font-size:.75rem}.security-info b,.backup-folder-card b{display:block;margin-top:4px;overflow-wrap:anywhere}.backup-folder-card p,.security-warning p{font-size:.8rem;line-height:1.8;color:var(--m);margin:7px 0 0}.security-warning{border:1px solid var(--mid);background:var(--c);border-radius:10px;padding:12px}.security-warning b{color:var(--mid)}.security-warning p{color:var(--t)}#set h3{font-size:.95rem;margin:8px 0}
+nav button.on{color:var(--icon-color,var(--g))}
 </style>
 </head>
 <body>
@@ -128,7 +145,7 @@ input[type=date]{direction:ltr;text-align:right}
 <div id="pa"></div>
 <script>
 const K="nika-v1",MODEL="claude-sonnet-5-5";
-let S={deals:[],set:{key:"",theme:"auto",auto:0,last:0,lastInt:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
+let S={deals:[],set:{key:"",theme:"auto",accent:"gold",customAccent:"#8a6414",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
 try{const j=JSON.parse(localStorage.getItem(K));if(j)S={deals:j.deals||[],set:{...S.set,...j.set,gfx:{...S.set.gfx,...(j.set||{}).gfx}}}}catch(e){}
 const $=i=>document.getElementById(i),save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const fa=n=>Math.round(n).toLocaleString("fa-IR");
@@ -182,7 +199,7 @@ async function rSet(){$("key").value=S.set.key;$("theme").value=S.set.theme;$("g
  const fs=!!window.showDirectoryPicker;$("auto").value=String(S.set.auto);$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;
  $("dinfo").textContent=(S.set.dirName?`پوشه پشتیبان: ${S.set.dirName}. `:"")+(fs?"":"انتخاب پوشه در مرورگر اندروید پشتیبانی نمی‌شود؛ فایل‌ها در پوشه دانلودها ذخیره می‌شوند و انتخاب پوشه با نسخه APK ممکن می‌شود. ")+(S.set.last?"آخرین پشتیبان: "+new Date(S.set.last).toLocaleString("fa-IR"):"هنوز پشتیبانی گرفته نشده.");
  try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>`<option value="${i}">${new Date(x.t).toLocaleString("fa-IR")}</option>`).join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
-function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}
+function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches),root=document.documentElement;root.dataset.theme=d?"dark":"light";root.dataset.accent=S.set.accent||"gold";root.dataset.density=S.set.density||"comfortable";root.dataset.font=S.set.font||"vazirmatn";const colors={gold:d?"#e0b94d":"#8a6414",teal:"#168f85",blue:"#3978c8",rose:"#bd657e",purple:"#8664bd",green:"#398653",orange:"#c76b22",cyan:"#168e9b"};root.style.setProperty("--g",S.set.customAccent||colors[S.set.accent]||colors.gold);if(S.set.pageBackground)root.style.setProperty("--bg",S.set.pageBackground);else root.style.removeProperty("--bg");root.style.setProperty("--icon-color",S.set.iconColor||"var(--g)") }
 function render(){({inv:rInv,dash:rDash,port:rPort,set:rSet})[tab]();document.body.className=Object.keys(S.set.gfx).filter(k=>!S.set.gfx[k]).map(k=>"ng-"+k).join(" ");theme()}
 function show(t){tab=t;document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("on",e.id==t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==t));render()}
 
