@@ -42,11 +42,16 @@ input[type=date]{direction:ltr;text-align:right}
 .ins.late{background:var(--bb)}.ins.late em{color:var(--bad)}
 .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--l)}.row:last-child{border:0}
 .ng-dash #dash .bar,.ng-port #port .bar{display:none}.ng-dash #dash .ins.late,.ng-dash #dash .card.lt{background:none;border-inline-start-width:1px}
-@media print{nav,.ex,button.head~*,.p,.s{display:none}.tab{display:none!important}.tab.on{display:block!important}body{background:#fff;color:#000}.ins{border-color:#999}}
+#pa{display:none}
+@page{size:A4 landscape}
+@media print{nav,.ex,button.head~*,.p,.s{display:none}.tab{display:none!important}.tab.on{display:block!important}body{background:#fff;color:#000}.ins{border-color:#999}
+.printall main,.printall nav{display:none!important}.printall #pa{display:block}
+#pa h1{font-size:16px}#pa h2{font-size:13px;margin:14px 0 6px}#pa table{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:12px}#pa th,#pa td{border:1px solid #888;padding:3px 5px;text-align:start}#pa th{background:#eee}}
 </style>
 </head>
 <body>
 <main>
+<div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
 <section id="inv" class="tab on">
  <h1>ثبت فاکتور</h1>
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
@@ -57,14 +62,20 @@ input[type=date]{direction:ltr;text-align:right}
   <input id="i_gal" type="file" accept="image/*" hidden>
   <input id="i_file" type="file" accept="application/pdf,image/*" hidden>
   <p class="msg" id="imsg"></p>
-  <label>نام مشتری<input id="f_name"></label>
-  <label>تلفن<input id="f_phone" inputmode="tel"></label>
-  <label>تاریخ فاکتور<input id="f_date" type="date"></label>
-  <label>وزن طلا (گرم)<input id="f_grams" inputmode="decimal"></label>
-  <label>مبلغ کل (تومان)<input id="f_total" inputmode="numeric"></label>
-  <label>پیش‌پرداخت (تومان)<input id="f_pre" inputmode="numeric" value="0"></label>
-  <label>تعداد اقساط<input id="f_count" inputmode="numeric" value="6"></label>
-  <label>تاریخ اولین قسط<input id="f_start" type="date"></label>
+  <label>نام و نام خانوادگی<input id="f_name"></label>
+  <label>گروه مشتری<input id="f_grp" list="grps" placeholder="بدون ضمانت"><datalist id="grps"><option value="بدون ضمانت"><option value="با ضمانت"></datalist></label>
+  <label>شماره موبایل<input id="f_phone" inputmode="tel"></label>
+  <label>تاریخ (شمسی)<input id="f_date" inputmode="numeric" dir="ltr" style="text-align:right" placeholder="1405/08/10"></label>
+  <label>شماره فاکتور / شرح کالا<input id="f_item"></label>
+  <label>مبلغ کل<input id="f_total" inputmode="numeric"></label>
+  <label>پیش‌پرداخت<input id="f_pre" inputmode="numeric" value="0"></label>
+  <label>تعداد اقساط<input id="f_count" inputmode="numeric" value="3"></label>
+  <label>مبلغ هر قسط<input id="f_inst" inputmode="numeric"></label>
+  <label>مبلغ کل خرید (کل بازپرداخت) — محاسبه‌شده<input id="f_repay" readonly></label>
+  <label>سود — محاسبه‌شده<input id="f_profit" readonly></label>
+  <label>تاریخ اولین قسط (شمسی؛ در فاکتور چاپی نیست، پیش‌فرض یک ماه بعد)<input id="f_start" inputmode="numeric" dir="ltr" style="text-align:right" placeholder="1405/09/10"></label>
+  <label><span><input type="checkbox" id="f_acc" style="width:auto"> حسابداری</span></label>
+  <label><span><input type="checkbox" id="f_fol" style="width:auto"> پیگیری اقساط</span></label>
   <p class="msg e" id="ferr"></p>
   <button class="p" id="fsave">ثبت فاکتور</button>
  </div>
@@ -77,92 +88,158 @@ input[type=date]{direction:ltr;text-align:right}
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
  <div id="pl"></div></section>
 <section id="set" class="tab"><h1>تنظیمات</h1>
- <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
+ <div class="card f"><b>خروجی کل</b>
+  <p class="msg">هر سه لایه (ثبت فاکتور، داشبورد، پورتفو) در یک فایل. در Excel هر لایه یک Sheet جدا است و در PDF هر لایه یک بخش.</p>
+  <div class="ex" style="margin:0"><button class="s" data-x="xlall">خروجی Excel</button><button class="s" data-x="pdfall">خروجی PDF</button></div>
+  <p class="msg">برای PDF، در پنجره چاپ گزینه «ذخیره به‌صورت PDF» را انتخاب کن.</p></div>
  <div class="card f">
-  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود)<input id="key" type="password" autocomplete="off"></label>
   <label>پوسته<select id="theme"><option value="auto">خودکار</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
   <label><span><input type="checkbox" id="g_dash" style="width:auto"> گرافیک داشبورد</span></label>
   <label><span><input type="checkbox" id="g_port" style="width:auto"> گرافیک پورتفو</span></label>
  </div>
- <div class="card f"><p class="msg" id="sinfo"></p>
-  <button class="p" id="bk">پشتیبان‌گیری (فایل JSON)</button>
-  <label>بازیابی از پشتیبان<input id="rs" type="file" accept=".json,application/json"></label>
+ <div class="card f"><b>امنیت و پشتیبانی</b>
+  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در پشتیبان نمی‌آید)<input id="key" type="password" autocomplete="off"></label>
+  <p class="msg" id="sinfo"></p>
+  <label>پشتیبان‌گیری خودکار<select id="auto"><option value="0">خاموش</option><option value="1">روزانه</option><option value="3">هر ۳ روز</option><option value="7">هفتگی</option><option value="30">ماهانه</option></select></label>
+  <p class="msg" id="dinfo"></p>
+  <div class="ex"><button class="s" id="pick">انتخاب پوشه</button><button class="s" id="unpick">حذف پوشه</button></div>
+  <button class="p" id="bk">پشتیبان‌گیری همین حالا</button>
+  <label>بازیابی از فایل پشتیبان<input id="rs" type="file" accept=".json,application/json"></label>
+  <label>بازیابی از نسخه‌های داخلی اپ<select id="cp"></select></label>
+  <button class="s" id="cpr">بازیابی نسخه انتخاب‌شده</button>
   <p class="msg" id="smsg"></p></div>
 </section>
 </main>
 <nav><button data-t="inv" class="on">ثبت فاکتور</button><button data-t="dash">داشبورد</button><button data-t="port">پورتفو</button><button data-t="set">تنظیمات</button></nav>
+<div id="pa"></div>
 <script>
 const K="nika-v1",MODEL="claude-sonnet-5-5";
-let S={deals:[],set:{key:"",theme:"auto",gfx:{dash:1,port:1}}},tab="inv",open=null;
+let S={deals:[],set:{key:"",theme:"auto",auto:0,last:0,lastInt:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
 try{const j=JSON.parse(localStorage.getItem(K));if(j)S={deals:j.deals||[],set:{...S.set,...j.set,gfx:{...S.set.gfx,...(j.set||{}).gfx}}}}catch(e){}
 const $=i=>document.getElementById(i),save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const fa=n=>Math.round(n).toLocaleString("fa-IR");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const num=s=>Number(String(s).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٬,\s]/g,""));
+const num=s=>Number(fix(s).replace(/[٬,،\s]/g,""));
 const day=s=>new Date(s+"T00:00:00"),fd=d=>d.toLocaleDateString("fa-IR");
-const due=(d,i)=>{const x=day(d.start);x.setMonth(x.getMonth()+i);return x};
+/*J0*/
+const fix=s=>String(s).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)),P=n=>String(n).padStart(2,"0");
+function g2j(gy,gm,gd){const m=[0,31,59,90,120,151,181,212,243,273,304,334];let jy;if(gy>1600){jy=979;gy-=1600}else{jy=0;gy-=621}
+ const g2=gm>2?gy+1:gy;let n=365*gy+Math.floor((g2+3)/4)-Math.floor((g2+99)/100)+Math.floor((g2+399)/400)-80+gd+m[gm-1];
+ jy+=33*Math.floor(n/12053);n%=12053;jy+=4*Math.floor(n/1461);n%=1461;if(n>365){jy+=Math.floor((n-1)/365);n=(n-1)%365}
+ return[jy,n<186?1+Math.floor(n/31):7+Math.floor((n-186)/30),1+(n<186?n%31:(n-186)%30)]}
+function j2g(jy,jm,jd){let gy;if(jy>979){gy=1600;jy-=979}else gy=621;
+ let n=365*jy+Math.floor(jy/33)*8+Math.floor(((jy%33)+3)/4)+78+jd+(jm<7?(jm-1)*31:(jm-7)*30+186);
+ gy+=400*Math.floor(n/146097);n%=146097;if(n>36524){n--;gy+=100*Math.floor(n/36524);n%=36524;if(n>=365)n++}
+ gy+=4*Math.floor(n/1461);n%=1461;if(n>365){gy+=Math.floor((n-1)/365);n=(n-1)%365}
+ let gd=n+1,gm;const sa=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31];for(gm=0;gm<13;gm++){if(gd<=sa[gm])break;gd-=sa[gm]}
+ return[gy,gm,gd]}
+function parseJ(s){const m=fix(s).trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);if(!m)return null;let y=+m[1],mo=+m[2],d=+m[3];
+ if(mo<1||mo>12||d<1||d>(mo<=6?31:mo<=11?30:30))return null;if(y<1700)[y,mo,d]=j2g(y,mo,d);return`${y}-${P(mo)}-${P(d)}`}
+const jstr=d=>{const[y,m,dd]=g2j(d.getFullYear(),d.getMonth()+1,d.getDate());return`${y}/${P(m)}/${P(dd)}`};
+function jAdd(iso,k){const[gy,gm,gd]=iso.split("-").map(Number);let[y,m,d]=g2j(gy,gm,gd);m+=k;y+=Math.floor((m-1)/12);m=(m-1)%12+1;d=Math.min(d,m<=6?31:m<=11?30:29);const[a,b,c]=j2g(y,m,d);return new Date(a,b-1,c)}
+/*J1*/
+const due=(d,i)=>jAdd(d.start,i);
 const T=()=>{const t=new Date();t.setHours(0,0,0,0);return t};
 const iso=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
-function stats(d){const p=(d.total-d.prepay)/d.count,t=T();let pn=0,late=0;d.paid.forEach((x,i)=>{if(x)pn++;else if(due(d,i)<t)late++});return{p,pn,late,lateAmt:late*p,recv:d.prepay+pn*p,rem:(d.count-pn)*p}}
+function stats(d){const p=d.inst!=null?d.inst:(d.total-d.prepay)/d.count,t=T();let pn=0,late=0;d.paid.forEach((x,i)=>{if(x)pn++;else if(due(d,i)<t)late++});return{p,pn,late,lateAmt:late*p,recv:d.prepay+pn*p,rem:(d.count-pn)*p}}
+const rp=d=>d.prepay+d.count*stats(d).p;
 function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)}
 
-function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card"><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${fa(d.grams)} گرم — ${fa(d.total)} تومان — ${fa(d.count)} قسط</span></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
+function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card"><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
 function rDash(){
  const g={};let rem=0,late=0;S.deals.forEach(d=>{(g[d.name]=g[d.name]||[]).push(d);const s=stats(d);rem+=s.rem;late+=s.lateAmt});
  const names=Object.keys(g);
- $("dsum").innerHTML=`<div><small>مشتری</small><b>${fa(names.length)}</b></div><div><small>فاکتور</small><b>${fa(S.deals.length)}</b></div><div><small>مطالبات (تومان)</small><b>${fa(rem)}</b></div><div class="${late?"b":""}"><small>عقب‌افتاده (تومان)</small><b>${fa(late)}</b></div>`;
+ $("dsum").innerHTML=`<div><small>مشتری</small><b>${fa(names.length)}</b></div><div><small>فاکتور</small><b>${fa(S.deals.length)}</b></div><div><small>مطالبات</small><b>${fa(rem)}</b></div><div class="${late?"b":""}"><small>عقب‌افتاده</small><b>${fa(late)}</b></div>`;
  const t=T();
  $("dl").innerHTML=names.map(n=>{let tot=0,r=0,lt=0,pn=0,cn=0;
   const ds=g[n].map(d=>{const s=stats(d);tot+=d.total;r+=s.rem;lt+=s.late;pn+=s.pn;cn+=d.count;
-   return `<div class="deal"><b>${fd(day(d.date))} — ${fa(d.grams)} گرم — ${fa(d.total)}</b>`+d.paid.map((p,i)=>{const u=due(d,i),l=!p&&u<t;return `<button class="ins ${p?"done":""} ${l?"late":""}" data-pay="${d.id}:${i}"><span>${p?"✓":""}</span>قسط ${fa(i+1)}<em>${fd(u)}</em><i>${fa(s.p)}</i></button>`}).join("")+`</div>`}).join("");
+   return `<div class="deal"><b>${fd(day(d.date))} — ${esc(d.item||(d.grams?fa(d.grams)+" گرم":""))} — ${fa(d.total)}</b><span class="msg">${d.grp?esc(d.grp)+" — ":""}پیش‌پرداخت ${fa(d.prepay)} — قسط ${fa(s.p)} — سود ${fa(rp(d)-d.total)}${d.acc?" — حسابداری ✓":""}${d.fol?" — پیگیری ✓":""}</span>${d.att?`<button class="s" data-att="${d.id}">مشاهده فاکتور پیوست</button>`:""}`+d.paid.map((p,i)=>{const u=due(d,i),l=!p&&u<t;return `<button class="ins ${p?"done":""} ${l?"late":""}" data-pay="${d.id}:${i}"><span>${p?"✓":""}</span>قسط ${fa(i+1)}<em>${fd(u)}</em><i>${fa(s.p)}</i></button>`}).join("")+`</div>`}).join("");
   const k=lt==0?["خوش‌حساب","ok"]:lt<3?["نیازمند پیگیری","mid"]:["پرریسک","bad"];
   return `<article class="card ${lt?"lt":""}"><button class="head" data-open="${esc(n)}"><div class="top"><b>${esc(n)}</b><span class="tag ${k[1]}">${k[0]}</span></div><div class="bar"><i style="width:${cn?pn/cn*100:0}%"></i></div><div class="top"><span>${fa(g[n].length)} خرید</span><span>مانده: ${fa(r)}</span></div></button>${open===n?ds:""}</article>`}).join("")||'<p class="msg">مشتری‌ای ثبت نشده.</p>'}
-function pData(){const t=T();let sales=0,pre=0,rec=0,rem=0,lateA=0;const m={};
- S.deals.forEach(d=>{const s=stats(d);sales+=d.total;pre+=d.prepay;rec+=s.pn*s.p;rem+=s.rem;lateA+=s.lateAmt;
+function pData(){const t=T();let sales=0,pre=0,rec=0,rem=0,lateA=0,prof=0;const m={};
+ S.deals.forEach(d=>{const s=stats(d);sales+=d.total;prof+=rp(d)-d.total;pre+=d.prepay;rec+=s.pn*s.p;rem+=s.rem;lateA+=s.lateAmt;
   d.paid.forEach((p,i)=>{if(!p){const u=due(d,i);if(u>=t){const k=u.getFullYear()*100+u.getMonth();m[k]=(m[k]||0)+s.p}}})});
- return{sales,pre,rec,rem,lateA,m,ks:Object.keys(m).map(Number).sort((a,b)=>a-b).slice(0,12)}}
+ return{sales,pre,rec,rem,lateA,prof,m,ks:Object.keys(m).map(Number).sort((a,b)=>a-b).slice(0,12)}}
 const mn=k=>new Date(Math.floor(k/100),k%100,1).toLocaleDateString("fa-IR",{year:"numeric",month:"long"});
 function rPort(){const p=pData(),mx=Math.max(1,...p.ks.map(k=>p.m[k]));
- $("pl").innerHTML=`<div class="card">${[["مجموع فروش",p.sales],["پیش‌پرداخت‌های دریافتی",p.pre],["اقساط دریافتی",p.rec],["کل دریافتی",p.pre+p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>`<div class="row"><span>${r[0]}</span><b>${fa(r[1])}</b></div>`).join("")}</div><div class="card"><b>پیش‌بینی دریافتی ماه‌های آینده</b>${p.ks.map(k=>`<div class="deal"><div class="top"><span>${mn(k)}</span><b>${fa(p.m[k])}</b></div><div class="bar"><i style="width:${p.m[k]/mx*100}%"></i></div></div>`).join("")||'<p class="msg">قسط معوقه‌ای در پیش رو نیست.</p>'}</div>`}
-function rSet(){$("key").value=S.set.key;$("theme").value=S.set.theme;$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;
- $("sinfo").textContent=`${fa(S.deals.length)} فاکتور در حافظه محلی این دستگاه ذخیره شده است.`}
+ $("pl").innerHTML=`<div class="card">${[["مجموع فروش (نقدی)",p.sales],["سود قراردادی کل",p.prof],["پیش‌پرداخت‌های دریافتی",p.pre],["اقساط دریافتی",p.rec],["کل دریافتی",p.pre+p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>`<div class="row"><span>${r[0]}</span><b>${fa(r[1])}</b></div>`).join("")}</div><div class="card"><b>پیش‌بینی دریافتی ماه‌های آینده</b>${p.ks.map(k=>`<div class="deal"><div class="top"><span>${mn(k)}</span><b>${fa(p.m[k])}</b></div><div class="bar"><i style="width:${p.m[k]/mx*100}%"></i></div></div>`).join("")||'<p class="msg">قسط معوقه‌ای در پیش رو نیست.</p>'}</div>`}
+async function rSet(){$("key").value=S.set.key;$("theme").value=S.set.theme;$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;
+ $("sinfo").textContent=`${fa(S.deals.length)} فاکتور در حافظه محلی این دستگاه ذخیره شده است.`;
+ const fs=!!window.showDirectoryPicker;$("auto").value=String(S.set.auto);$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;
+ $("dinfo").textContent=(S.set.dirName?`پوشه پشتیبان: ${S.set.dirName}. `:"")+(fs?"":"انتخاب پوشه در مرورگر اندروید پشتیبانی نمی‌شود؛ فایل‌ها در پوشه دانلودها ذخیره می‌شوند و انتخاب پوشه با نسخه APK ممکن می‌شود. ")+(S.set.last?"آخرین پشتیبان: "+new Date(S.set.last).toLocaleString("fa-IR"):"هنوز پشتیبانی گرفته نشده.");
+ try{const c=(await idb("get","copies"))||[];$("cp").innerHTML=c.map((x,i)=>`<option value="${i}">${new Date(x.t).toLocaleString("fa-IR")}</option>`).join("")||"<option value=''>نسخه‌ای نیست</option>"}catch(e){}}
 function theme(){const d=S.set.theme=="dark"||(S.set.theme=="auto"&&matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}
 function render(){({inv:rInv,dash:rDash,port:rPort,set:rSet})[tab]();document.body.className=Object.keys(S.set.gfx).filter(k=>!S.set.gfx[k]).map(k=>"ng-"+k).join(" ");theme()}
 function show(t){tab=t;document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("on",e.id==t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==t));render()}
 
-function rows(){
- if(tab=="dash"||tab=="inv")return S.deals.map(d=>{const s=stats(d);return{"مشتری":d.name,"تلفن":d.phone,"تاریخ فاکتور":d.date,"وزن (گرم)":d.grams,"مبلغ کل":d.total,"پیش‌پرداخت":d.prepay,"تعداد اقساط":d.count,"پرداخت‌شده":s.pn,"عقب‌افتاده":s.late,"مانده":Math.round(s.rem)}});
- if(tab=="port"){const p=pData();return [["مجموع فروش",p.sales],["پیش‌پرداخت‌ها",p.pre],["اقساط دریافتی",p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>({"شرح":r[0],"مبلغ":Math.round(r[1])})).concat(p.ks.map(k=>({"شرح":"پیش‌بینی "+mn(k),"مبلغ":Math.round(p.m[k])})))}
- return [{"فاکتور":S.deals.length,"تاریخ خروجی":iso()}]}
-function xl(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows()),"nika");XLSX.writeFile(wb,`nika-${tab}-${iso()}.xlsx`)}
-
+const rowsInv=()=>S.deals.map(d=>{const q=stats(d);return{"نام و نام خانوادگی":d.name,"گروه مشتری":d.grp||"","موبایل":d.phone||"","تاریخ":fd(day(d.date)),"شرح / شماره فاکتور":d.item||(d.grams?d.grams+" گرم":""),"مبلغ کل":d.total,"پیش‌پرداخت":d.prepay,"تعداد اقساط":d.count,"مبلغ هر قسط":Math.round(q.p),"کل بازپرداخت":Math.round(rp(d)),"سود":Math.round(rp(d)-d.total),"تاریخ اولین قسط":fd(day(d.start)),"حسابداری":d.acc?"✓":"","پیگیری اقساط":d.fol?"✓":"","فایل پیوست":d.att?"دارد":""}});
+function rowsDash(){const g={};S.deals.forEach(d=>(g[d.name]=g[d.name]||[]).push(d));
+ return Object.keys(g).map(n=>{let tot=0,rec=0,rem=0,late=0,lateA=0,pn=0,cn=0;g[n].forEach(d=>{const q=stats(d);tot+=d.total;rec+=q.recv;rem+=q.rem;late+=q.late;lateA+=q.lateAmt;pn+=q.pn;cn+=d.count});
+  const ph=g[n].find(d=>d.phone);return{"مشتری":n,"گروه":g[n][0].grp||"","موبایل":ph?ph.phone:"","تعداد خرید":g[n].length,"مجموع خرید":tot,"دریافتی (پیش‌پرداخت و اقساط)":Math.round(rec),"مانده":Math.round(rem),"اقساط پرداخت‌شده":`${pn}/${cn}`,"اقساط عقب‌افتاده":late,"مبلغ عقب‌افتاده":Math.round(lateA),"ارزیابی":late==0?"خوش‌حساب":late<3?"نیازمند پیگیری":"پرریسک"}})}
+function rowsPort(){const p=pData();return [["مجموع فروش (نقدی)",p.sales],["سود قراردادی کل",p.prof],["پیش‌پرداخت‌ها",p.pre],["اقساط دریافتی",p.rec],["کل دریافتی",p.pre+p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>({"شرح":r[0],"مبلغ":Math.round(r[1])})).concat(p.ks.map(k=>({"شرح":"پیش‌بینی دریافت "+mn(k),"مبلغ":Math.round(p.m[k])})))}
+const rows=()=>({inv:rowsInv,dash:rowsDash,port:rowsPort})[tab]();
+const SHEET={inv:"ثبت فاکتور",dash:"داشبورد",port:"پورتفو"};
+async function outXlsx(wb,name){try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,XLSX.write(wb,{bookType:"xlsx",type:"array"}),true))return}catch(e){}XLSX.writeFile(wb,name)}
+function newWb(){const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};return wb}
+async function xl(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=newWb();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows()),SHEET[tab]);await outXlsx(wb,`nika-${tab}-${iso()}.xlsx`)}
+async function xlAll(){if(!window.XLSX)return alert("کتابخانه Excel بارگذاری نشد؛ اینترنت لازم است.");const wb=newWb();
+ [["inv",rowsInv()],["dash",rowsDash()],["port",rowsPort()]].forEach(([k,r])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),SHEET[k]));await outXlsx(wb,`nika-all-${iso()}.xlsx`)}
+function pdf(){document.body.classList.remove("printall");print()}
+function pdfAll(){const tb=(t,r)=>`<h2>${t}</h2>`+(r.length?`<table><thead><tr>${Object.keys(r[0]).map(k=>`<th>${esc(k)}</th>`).join("")}</tr></thead><tbody>${r.map(o=>`<tr>${Object.values(o).map(v=>`<td>${typeof v=="number"?fa(v):esc(String(v))}</td>`).join("")}</tr>`).join("")}</tbody></table>`:"<p>داده‌ای ثبت نشده است.</p>");
+ $("pa").innerHTML=`<h1>گزارش کل نیکا — ${fd(new Date())}</h1>`+tb(SHEET.inv,rowsInv())+tb(SHEET.dash,rowsDash())+tb(SHEET.port,rowsPort());
+ document.body.classList.add("printall");addEventListener("afterprint",()=>{document.body.classList.remove("printall");$("pa").innerHTML=""},{once:true});print()}
 async function readInvoice(f){
  let block;
  if(f.type=="application/pdf"){const data=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=no;r.readAsDataURL(f)});block={type:"document",source:{type:"base64",media_type:"application/pdf",data}}}
  else{const im=await createImageBitmap(f),sc=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);block={type:"image",source:{type:"base64",media_type:"image/jpeg",data:c.toDataURL("image/jpeg",.85).split(",")[1]}}}
- const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:500,messages:[{role:"user",content:[block,{type:"text",text:"این تصویر فاکتور خرید طلا است. فقط یک JSON بدون هیچ متن دیگر برگردان با کلیدهای name (نام خریدار)، phone، date (به فرمت YYYY-MM-DD میلادی؛ اگر شمسی است تبدیل کن)، grams (وزن طلا به گرم، عدد)، total (مبلغ کل به تومان، عدد انگلیسی). مقدار نامعلوم را null بگذار."}]}]})});
+ const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":S.set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:MODEL,max_tokens:500,messages:[{role:"user",content:[block,{type:"text",text:"این تصویر یک «ریزمحاسبه خرید اقساطی» است. فقط یک JSON بدون هیچ متن دیگر برگردان با این کلیدها: name (نام و نام خانوادگی)، group (گروه مشتری)، phone (شماره موبایل؛ اگر خالی است null)، date (تاریخ بالای فاکتور دقیقاً همان‌طور که چاپ شده، با ارقام انگلیسی به شکل YYYY/MM/DD)، item (متن مقابل «شماره فاکتور»)، total (مبلغ کل)، prepay (پیش پرداخت)، count (تعداد اقساط)، inst (مبلغ هر قسط)، repay (مبلغ کل خرید یا کل بازپرداخت)، profit (سود). همه مبلغ‌ها عدد انگلیسی بدون کاما. مقدار نامعلوم را null بگذار."}]}]})});
  const j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
  return JSON.parse(j.content.map(x=>x.text||"").join("").replace(/```json|```/g,"").trim())}
 
 ["cam","gal","file"].forEach(k=>$("i_"+k).onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)inv(f)});
 document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>$("i_"+b.dataset.pick).click());
-async function inv(f){const m=$("imsg");m.className="msg";
- if(!S.set.key){m.className="msg e";m.textContent="اول کلید API را در تنظیمات وارد کن.";return}
+let pend=null,stT=false;
+function startSync(){if(stT)return;const i=parseJ($("f_date").value);if(i)$("f_start").value=jstr(jAdd(i,1))}
+function calc(){const t=num($("f_total").value||0),pr=num($("f_pre").value||0),c=num($("f_count").value||0),i=num($("f_inst").value||0),r=pr+c*i;$("f_repay").value=i>0?fa(r):"";$("f_profit").value=i>0&&t>0?fa(r-t):""}
+function fillInv(r){let w="";const sv=(id,v)=>{if(v!=null&&v!=="")$(id).value=v};
+ sv("f_name",r.name);sv("f_grp",r.group);sv("f_phone",r.phone);sv("f_item",r.item);
+ const di=r.date?parseJ(String(r.date)):null;if(di){$("f_date").value=jstr(day(di));startSync()}
+ sv("f_total",r.total);sv("f_pre",r.prepay);sv("f_count",r.count);sv("f_inst",r.inst);calc();
+ const rr=num($("f_pre").value||0)+num($("f_count").value||0)*num($("f_inst").value||0);
+ if(r.repay!=null&&Math.abs(num(r.repay)-rr)>1)w+=" ⚠ کل بازپرداخت چاپ‌شده با محاسبه فرق دارد.";
+ if(r.profit!=null&&Math.abs(num(r.profit)-(rr-num($("f_total").value||0)))>1)w+=" ⚠ سود چاپ‌شده با محاسبه فرق دارد.";return w}
+async function inv(f){pend=f;const m=$("imsg");m.className="msg";
+ if(!S.set.key){m.textContent="فایل پیوست شد. برای پر شدن خودکار، کلید API را در تنظیمات وارد کن یا فیلدها را دستی پر کن.";return}
  m.textContent="در حال خواندن فاکتور…";
  try{const r=await readInvoice(f);
-  if(r.name)$("f_name").value=r.name;if(r.phone)$("f_phone").value=r.phone;if(r.date)$("f_date").value=r.date;
-  if(r.grams!=null)$("f_grams").value=r.grams;if(r.total!=null)$("f_total").value=r.total;
-  m.textContent="خوانده شد. مقادیر را حتماً بررسی کن."}catch(x){m.className="msg e";m.textContent="خطا: "+x.message}};
-$("fsave").onclick=()=>{const e=$("ferr"),name=$("f_name").value.trim(),total=num($("f_total").value),pre=num($("f_pre").value||0),count=num($("f_count").value),grams=num($("f_grams").value||0),start=$("f_start").value,date=$("f_date").value||iso();
- if(!name)return e.textContent="نام مشتری را وارد کن.";if(!(total>0))return e.textContent="مبلغ کل نامعتبر است.";
+  const w=fillInv(r);
+  m.textContent="خوانده شد و فایل پیوست شد. مقادیر را حتماً بررسی کن."+w}catch(x){m.className="msg e";m.textContent="خطا: "+x.message}};
+async function prep(f){if(f.type=="application/pdf")return f;const im=await createImageBitmap(f),sc=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.85))}
+async function showAtt(id){try{const a=await idb("get","att:"+id);if(!a)return alert("فایل پیوست پیدا نشد.");
+ const u=URL.createObjectURL(a.blob),v=document.createElement("div");
+ v.style.cssText="position:fixed;inset:0;z-index:9;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;overflow:auto";
+ v.innerHTML=(a.type=="application/pdf"?`<a class="p" style="padding:14px;text-decoration:none" href="${u}" target="_blank" rel="noopener">باز کردن PDF</a>`:`<img src="${u}" alt="فاکتور" style="max-width:100%;border-radius:8px">`)+`<button class="s" style="background:#fff;padding:10px 24px">بستن</button>`;
+ v.querySelector("button").onclick=()=>{v.remove();URL.revokeObjectURL(u)};document.body.appendChild(v)}catch(e){alert("نمایش فایل ممکن نشد.")}}
+$("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),total=num($("f_total").value),pre=num($("f_pre").value||0),count=num($("f_count").value),inst=num($("f_inst").value),date=parseJ($("f_date").value),start=parseJ($("f_start").value);
+ if(!name)return e.textContent="نام مشتری را وارد کن.";
+ if(!date)return e.textContent="تاریخ را به شکل 1405/08/10 وارد کن.";
+ if(!(total>0))return e.textContent="مبلغ کل نامعتبر است.";
  if(!(pre>=0&&pre<total))return e.textContent="پیش‌پرداخت باید کمتر از مبلغ کل باشد.";
- if(!(count>=1&&count<=60))return e.textContent="تعداد اقساط باید بین ۱ تا ۶۰ باشد.";if(!start)return e.textContent="تاریخ اولین قسط را انتخاب کن.";
- S.deals.unshift({id:String(Date.now()),name,phone:$("f_phone").value.trim(),date,grams,total,prepay:pre,count,start,paid:Array(count).fill(false)});save();
- e.textContent="";["f_name","f_phone","f_grams","f_total"].forEach(i=>$(i).value="");$("f_pre").value=0;$("imsg").textContent="ثبت شد.";rInv()};
+ if(!(count>=1&&count<=60))return e.textContent="تعداد اقساط باید بین ۱ تا ۶۰ باشد.";
+ if(!(inst>0))return e.textContent="مبلغ هر قسط را وارد کن.";
+ if(!start)return e.textContent="تاریخ اولین قسط را به شکل 1405/09/10 وارد کن.";
+ const d={id:String(Date.now()),name,grp:$("f_grp").value.trim(),phone:$("f_phone").value.trim(),item:$("f_item").value.trim(),date,total,prepay:pre,count,inst,start,acc:$("f_acc").checked,fol:$("f_fol").checked,paid:Array(count).fill(false),att:null};
+ let note="ثبت شد.";
+ if(pend){try{const b=await prep(pend);await idb("set","att:"+d.id,{blob:b,type:b.type,name:pend.name});d.att={type:b.type,name:pend.name};note="ثبت شد و فاکتور به پروفایل مشتری پیوست شد."}catch(x){note="ثبت شد، اما پیوست فاکتور ذخیره نشد."}pend=null}
+ S.deals.unshift(d);save();
+ e.textContent="";["f_name","f_grp","f_phone","f_item","f_total","f_inst"].forEach(i=>$(i).value="");$("f_pre").value=0;$("f_acc").checked=$("f_fol").checked=false;
+ $("f_date").value=jstr(new Date());stT=false;startSync();calc();$("imsg").textContent=note;rInv()};
+["f_total","f_pre","f_count","f_inst"].forEach(i=>$(i).oninput=calc);$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
 
 document.addEventListener("click",e=>{
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
- const x=e.target.closest("[data-x]");if(x)return x.dataset.x=="xl"?xl():print();
+ const x=e.target.closest("[data-x]");if(x){const k=x.dataset.x;return k=="xl"?xl():k=="pdf"?pdf():k=="xlall"?xlAll():pdfAll()}
+ const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);
  const b=e.target.closest("[data-open],[data-pay]");if(!b)return;
  if(b.dataset.open!=null)open=open===b.dataset.open?null:b.dataset.open;
  else{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(z=>z.id===id);d.paid[i]=!d.paid[i];save()}
@@ -170,9 +247,27 @@ document.addEventListener("click",e=>{
 $("key").onchange=e=>{S.set.key=e.target.value.trim();save()};
 $("theme").onchange=e=>{S.set.theme=e.target.value;save();theme()};
 ["dash","port"].forEach(k=>$("g_"+k).onchange=e=>{S.set.gfx[k]=e.target.checked?1:0;save();render()});
-$("bk").onclick=()=>{dl(`nika-backup-${iso()}.json`,JSON.stringify(S),"application/json");$("smsg").textContent="فایل پشتیبان در پوشه دانلودها ذخیره شد."};
-$("rs").onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(!Array.isArray(j.deals))throw 0;S={deals:j.deals,set:{...S.set,...j.set}};save();$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست."}};
-$("f_date").value=iso();$("f_start").value=iso();render();
+const idb=(m,k,v)=>new Promise((ok,no)=>{const r=indexedDB.open("nika",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onerror=()=>no(r.error);r.onsuccess=()=>{const st=r.result.transaction("kv",m=="get"?"readonly":"readwrite"),o=st.objectStore("kv"),q=m=="get"?o.get(k):m=="del"?o.delete(k):o.put(v,k);st.oncomplete=()=>ok(q.result);st.onerror=()=>no(st.error)}});
+const snap=()=>JSON.stringify({deals:S.deals,set:{...S.set,key:undefined,dirName:undefined}}),DAY=864e5;
+async function folderWrite(h,name,json,ask){const o={mode:"readwrite"};let p=await h.queryPermission(o);if(p!="granted"&&ask)p=await h.requestPermission(o);if(p!="granted")return false;
+ const w=await(await h.getFileHandle(name,{create:true})).createWritable();await w.write(json);await w.close();return true}
+async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshift({t:Date.now(),json});await idb("set","copies",c.slice(0,7))}catch(e){}}
+async function backupNow(manual){const json=snap(),name=`nika-backup-${iso()}.json`;let where="";
+ try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){}
+ await addCopy(json);S.set.lastInt=Date.now();
+ if(!where&&manual){dl(name,json,"application/json");where="dl"}
+ if(where)S.set.last=Date.now();save();bnr();return where}
+function bnr(){const due=S.set.auto>0&&S.deals.length>0&&Date.now()-S.set.last>=S.set.auto*DAY;$("bn").hidden=!due;if(due)$("bnt").textContent="زمان پشتیبان‌گیری خودکار رسیده است."}
+async function autoTick(){if(S.set.auto>0&&Date.now()-S.set.lastInt>=S.set.auto*DAY)await backupNow(false);bnr()}
+function applyBackup(t){const j=JSON.parse(t);if(!Array.isArray(j.deals))throw 0;S={deals:j.deals,set:{...S.set,...j.set,key:S.set.key,dirName:S.set.dirName}};save()}
+$("bk").onclick=async()=>{const w=await backupNow(true);$("smsg").textContent=w=="folder"?"پشتیبان در پوشه انتخاب‌شده ذخیره شد.":"فایل پشتیبان در پوشه دانلودها ذخیره شد.";render()};
+$("bnb").onclick=async()=>{await backupNow(true);render()};
+$("auto").onchange=e=>{S.set.auto=Number(e.target.value);save();autoTick()};
+$("pick").onclick=async()=>{try{const h=await showDirectoryPicker({mode:"readwrite"});await idb("set","dir",h);S.set.dirName=h.name;save();rSet()}catch(e){}};
+$("unpick").onclick=async()=>{try{await idb("del","dir")}catch(e){}S.set.dirName="";save();rSet()};
+$("cpr").onclick=async()=>{try{const c=await idb("get","copies");applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="نسخه‌ای برای بازیابی نیست."}};
+$("rs").onchange=async e=>{try{applyBackup(await e.target.files[0].text());$("smsg").textContent="بازیابی شد.";render()}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست."}};
+$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();document.addEventListener("visibilitychange",()=>{if(!document.hidden)autoTick()});
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
