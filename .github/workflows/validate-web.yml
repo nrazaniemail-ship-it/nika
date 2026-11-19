@@ -31,5 +31,7 @@ jobs:
           Path('/tmp/nika-inline.js').write_text(scripts[0], encoding='utf-8')
           print(f'Extracted {len(scripts[0])} JavaScript characters')
           PY
-      - name: Check JavaScript syntax
-        run: node --check /tmp/nika-inline.js
+      - name: Check application JavaScript syntax
+        run: |
+          node --check /tmp/nika-inline.js
+          node --check sw.js
