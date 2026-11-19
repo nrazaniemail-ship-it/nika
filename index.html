@@ -89,25 +89,39 @@ input[type=date]{direction:ltr;text-align:right}
  <div id="pl"></div></section>
 <section id="set" class="tab"><h1>تنظیمات</h1>
  <div class="card f"><b>خروجی کل</b>
-  <p class="msg">هر سه لایه (ثبت فاکتور، داشبورد، پورتفو) در یک فایل. در Excel هر لایه یک Sheet جدا است و در PDF هر لایه یک بخش.</p>
-  <div class="ex" style="margin:0"><button class="s" data-x="xlall">خروجی Excel</button><button class="s" data-x="pdfall">خروجی PDF</button></div>
-  <p class="msg">برای PDF، در پنجره چاپ گزینه «ذخیره به‌صورت PDF» را انتخاب کن.</p></div>
- <div class="card f">
-  <label>پوسته<select id="theme"><option value="auto">خودکار</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
+  <p class="msg">هر سه لایه ثبت فاکتور، داشبورد و پورتفو در یک فایل واحد. در Excel هر لایه یک Sheet و در PDF هر لایه یک بخش مستقل است.</p>
+  <div class="ex" style="margin:0"><button class="s" data-x="xlall">خروجی جامع Excel</button><button class="s" data-x="pdfall">خروجی جامع PDF</button></div>
+  <p class="msg">در پنجره چاپ PDF، گزینه «ذخیره به‌صورت PDF» را انتخاب کن.</p></div>
+ <div class="card f"><b>ظاهر و تجربه کاربری</b>
+  <label>پوسته<select id="theme"><option value="auto">مطابق دستگاه</option><option value="light">روشن</option><option value="dark">تیره</option></select></label>
+  <label>رنگ پوسته<select id="accent"><option value="gold">طلایی</option><option value="teal">فیروزه‌ای</option><option value="blue">آبی</option><option value="rose">رز</option><option value="purple">بنفش</option><option value="green">سبز</option><option value="orange">نارنجی</option><option value="cyan">فیروزه‌ای روشن</option></select></label>
+  <div class="color-setting"><b>رنگ زمینه صفحه</b><div class="color-palette" id="pagePalette"></div></div>
+  <div class="color-setting"><b>رنگ دلخواه پوسته</b><div class="color-palette" id="accentPalette"></div></div>
+  <div class="color-setting"><b>رنگ آیکون‌ها</b><div class="color-palette" id="iconPalette"></div></div>
+  <p class="msg">برای هر بخش ۲۴ رنگ قابل انتخاب است.</p>
+  <label>تراکم نمایش<select id="density"><option value="comfortable">راحت</option><option value="compact">فشرده</option></select></label>
+  <label>نوع قلم<select id="font"><option value="vazirmatn">وزیرمتن (پیش‌فرض)</option><option value="parastoo">پرستو</option><option value="samim">صمیم</option><option value="sahel">ساحل</option><option value="gandom">گندم</option><option value="shabnam">شبنم</option><option value="estedad">استعداد</option><option value="noto-naskh">Noto Naskh Arabic</option><option value="noto-kufi">Noto Kufi Arabic</option><option value="noto-sans">Noto Sans Arabic</option><option value="cairo">کایرو (Cairo)</option><option value="system">قلم پیش‌فرض گوشی</option></select></label>
   <label><span><input type="checkbox" id="g_dash" style="width:auto"> گرافیک داشبورد</span></label>
   <label><span><input type="checkbox" id="g_port" style="width:auto"> گرافیک پورتفو</span></label>
  </div>
- <div class="card f"><b>امنیت و پشتیبانی</b>
-  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در پشتیبان نمی‌آید)<input id="key" type="password" autocomplete="off"></label>
-  <p class="msg" id="sinfo"></p>
-  <label>پشتیبان‌گیری خودکار<select id="auto"><option value="0">خاموش</option><option value="1">روزانه</option><option value="3">هر ۳ روز</option><option value="7">هفتگی</option><option value="30">ماهانه</option></select></label>
-  <p class="msg" id="dinfo"></p>
+ <div class="card f"><b>امنیت، پشتیبانی و نگهداری اطلاعات</b>
+  <div class="security-info"><div><small>تعداد فاکتورهای ذخیره‌شده</small><b id="sinfo"></b></div><div><small>روش نگهداری</small><b>محلی روی دستگاه</b></div></div>
+  <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در نسخه پشتیبان قرار نمی‌گیرد)<input id="key" type="password" autocomplete="off"></label>
+  <div class="backup-folder-card"><small>محل ذخیره نسخه‌های پشتیبان و خروجی‌ها</small><b id="backupFolderName">پوشه دانلود دستگاه</b><p id="backupLocationInfo">در صورت پشتیبانی مرورگر می‌توان پوشه‌ای اختصاصی انتخاب کرد؛ در غیر این صورت فایل پشتیبان در دانلودها ذخیره می‌شود.</p></div>
+  <h3>ذخیره‌سازی خودکار نسخه پشتیبان</h3>
+  <label><span><input type="checkbox" id="autoBackupEnabled" style="width:auto"> فعال‌سازی پشتیبان‌گیری خودکار</span></label>
+  <label>بازه زمانی ذخیره‌سازی<select id="backupInterval"><option value="3600000">هر ۱ ساعت</option><option value="21600000">هر ۶ ساعت</option><option value="43200000">هر ۱۲ ساعت</option><option value="86400000">روزانه</option><option value="604800000">هفتگی</option></select></label>
+  <div class="security-info"><div><small>آخرین نسخه پشتیبان</small><b id="lastBackupAt">هنوز تهیه نشده</b></div><div><small>وضعیت برنامه‌ریزی</small><b id="autoBackupStatus">غیرفعال</b></div></div>
+  <p class="msg">پشتیبان‌گیری زمان‌بندی‌شده هنگام اجرای برنامه انجام می‌شود. برای اجرای مستقل در پس‌زمینه و هنگام بسته‌بودن کامل برنامه، به سرویس زمان‌بندی بومی Android نیاز است.</p>
   <div class="ex"><button class="s" id="pick">انتخاب پوشه</button><button class="s" id="unpick">حذف پوشه</button></div>
-  <button class="p" id="bk">پشتیبان‌گیری همین حالا</button>
+  <button class="p" id="bk">تهیه نسخه پشتیبان همین حالا</button>
   <label>بازیابی از فایل پشتیبان<input id="rs" type="file" accept=".json,application/json"></label>
   <label>بازیابی از نسخه‌های داخلی اپ<select id="cp"></select></label>
   <button class="s" id="cpr">بازیابی نسخه انتخاب‌شده</button>
-  <p class="msg" id="smsg"></p></div>
+  <p class="msg" id="dinfo"></p><p class="msg" id="smsg"></p>
+  <div class="security-warning"><b>نکته امنیتی مهم</b><p>فایل پشتیبان شامل اطلاعات مالی مشتریان و ممکن است شامل تصویر فاکتورها باشد. آن را در فضای امن نگهداری کنید و برای دیگران ارسال نکنید. کلید API از پشتیبان حذف می‌شود. اطلاعات در این نسخه روی دستگاه ذخیره می‌شود و رمزنگاری سرتاسری یا همگام‌سازی ابری فعال نیست.</p></div>
+ </div>
+ <div class="card f"><b>تماس با پشتیبان</b><p class="msg">برای گزارش مشکل یا دریافت راهنمایی:</p><a href="mailto:n.razaniemail@gmail.com">n.razaniemail@gmail.com</a><p class="msg">نیکا — مدیریت فاکتورهای فروش طلا و اقساط</p></div>
 </section>
 </main>
 <nav><button data-t="inv" class="on">ثبت فاکتور</button><button data-t="dash">داشبورد</button><button data-t="port">پورتفو</button><button data-t="set">تنظیمات</button></nav>
