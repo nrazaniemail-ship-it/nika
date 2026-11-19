@@ -122,6 +122,13 @@ nav button.on{color:var(--icon-color,var(--g))}
   <label><span><input type="checkbox" id="g_dash" style="width:auto"> گرافیک داشبورد</span></label>
   <label><span><input type="checkbox" id="g_port" style="width:auto"> گرافیک پورتفو</span></label>
  </div>
+ <div class="card f"><b>اعلان و یادآوری اقساط</b>
+  <label><span><input type="checkbox" id="notify" style="width:auto"> فعال‌سازی اعلان‌های اقساط</span></label>
+  <label>زمان یادآوری<select id="reminderMinutes"><option value="0">در موعد قسط</option><option value="15">۱۵ دقیقه قبل</option><option value="30">۳۰ دقیقه قبل</option><option value="60">۱ ساعت قبل</option><option value="180">۳ ساعت قبل</option><option value="1440">۱ روز قبل</option><option value="2880">۲ روز قبل</option><option value="10080">۱ هفته قبل</option></select></label>
+  <label>ساعت اعلان<input id="reminderTime" type="time" value="09:00"></label>
+  <button class="s" id="notifyPermission">اجازه اعلان دستگاه</button>
+  <p class="msg" id="notifyStatus">اعلان‌ها هنگام اجرای برنامه بررسی می‌شوند؛ برای اعلان در زمان بسته‌بودن کامل برنامه به سرویس بومی Android نیاز است.</p>
+ </div>
  <div class="card f"><b>امنیت، پشتیبانی و نگهداری اطلاعات</b>
   <div class="security-info"><div><small>تعداد فاکتورهای ذخیره‌شده</small><b id="sinfo"></b></div><div><small>روش نگهداری</small><b>محلی روی دستگاه</b></div></div>
   <label>کلید API کلود (فقط روی همین دستگاه ذخیره می‌شود و در نسخه پشتیبان قرار نمی‌گیرد)<input id="key" type="password" autocomplete="off"></label>
@@ -146,7 +153,7 @@ nav button.on{color:var(--icon-color,var(--g))}
 <div id="pa"></div>
 <script>
 const K="nika-v1",MODEL="claude-sonnet-5-5";
-let S={deals:[],set:{key:"",theme:"auto",accent:"gold",customAccent:"#8a6414",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
+let S={deals:[],set:{key:"",theme:"auto",accent:"gold",customAccent:"#8a6414",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,reminderMinutes:60,reminderTime:"09:00",notifyLog:{},autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
 try{const j=JSON.parse(localStorage.getItem(K));if(j)S={deals:j.deals||[],set:{...S.set,...j.set,gfx:{...S.set.gfx,...(j.set||{}).gfx}}}}catch(e){}
 const $=i=>document.getElementById(i),save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const fa=n=>Math.round(n).toLocaleString("fa-IR");
@@ -195,7 +202,7 @@ function pData(){const t=T();let sales=0,pre=0,rec=0,rem=0,lateA=0,prof=0;const 
 const mn=k=>new Date(Math.floor(k/100),k%100,1).toLocaleDateString("fa-IR",{year:"numeric",month:"long"});
 function rPort(){const p=pData(),mx=Math.max(1,...p.ks.map(k=>p.m[k]));
  $("pl").innerHTML=`<div class="card">${[["مجموع فروش (نقدی)",p.sales],["سود قراردادی کل",p.prof],["پیش‌پرداخت‌های دریافتی",p.pre],["اقساط دریافتی",p.rec],["کل دریافتی",p.pre+p.rec],["مطالبات باقی‌مانده",p.rem],["عقب‌افتاده",p.lateA]].map(r=>`<div class="row"><span>${r[0]}</span><b>${fa(r[1])}</b></div>`).join("")}</div><div class="card"><b>پیش‌بینی دریافتی ماه‌های آینده</b>${p.ks.map(k=>`<div class="deal"><div class="top"><span>${mn(k)}</span><b>${fa(p.m[k])}</b></div><div class="bar"><i style="width:${p.m[k]/mx*100}%"></i></div></div>`).join("")||'<p class="msg">قسط معوقه‌ای در پیش رو نیست.</p>'}</div>`}
-async function rSet(){$("key").value=S.set.key;$("theme").value=S.set.theme;$("accent").value=S.set.accent||"gold";$("density").value=S.set.density||"comfortable";$("font").value=S.set.font||"vazirmatn";$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;$("autoBackupEnabled").checked=!!S.set.autoBackupEnabled;$("backupInterval").value=String(S.set.backupInterval||86400000);
+async function rSet(){$("key").value=S.set.key;$("notify").checked=S.set.notify!==false;$("reminderMinutes").value=String(S.set.reminderMinutes??60);$("reminderTime").value=S.set.reminderTime||"09:00";$("notifyStatus").textContent=("Notification" in window)?(Notification.permission==="granted"?"مجوز اعلان فعال است.":"اعلان‌ها هنگام اجرای برنامه بررسی می‌شوند؛ مجوز دستگاه را فعال کنید."):"این محیط اعلان‌های وب را پشتیبانی نمی‌کند.";$("theme").value=S.set.theme;$("accent").value=S.set.accent||"gold";$("density").value=S.set.density||"comfortable";$("font").value=S.set.font||"vazirmatn";$("g_dash").checked=!!S.set.gfx.dash;$("g_port").checked=!!S.set.gfx.port;$("autoBackupEnabled").checked=!!S.set.autoBackupEnabled;$("backupInterval").value=String(S.set.backupInterval||86400000);
  $("sinfo").textContent=fa(S.deals.length)+" فاکتور";
  const fs=!!window.showDirectoryPicker;$("pick").hidden=!fs;$("unpick").hidden=!S.set.dirName;$("backupFolderName").textContent=S.set.dirName||"پوشه دانلود دستگاه";$("backupLocationInfo").textContent=fs?"در صورت انتخاب پوشه، نسخه‌ها در همان مسیر ذخیره می‌شوند.":"مرورگر فعلی انتخاب مستقیم پوشه را پشتیبانی نمی‌کند؛ خروجی دستی در دانلودها ذخیره می‌شود.";
  $("lastBackupAt").textContent=S.set.lastBackupAt?new Date(S.set.lastBackupAt).toLocaleString("fa-IR"):"هنوز تهیه نشده";$("autoBackupStatus").textContent=S.set.autoBackupEnabled?"فعال (هنگام اجرای برنامه)":"غیرفعال";
@@ -279,6 +286,10 @@ document.addEventListener("click",e=>{
  if(b.dataset.open!=null)open=open===b.dataset.open?null:b.dataset.open;
  else{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(z=>z.id===id);d.paid[i]=!d.paid[i];save()}
  render()});
+$("notify").onchange=e=>{S.set.notify=e.target.checked;save();if(e.target.checked)checkInstallmentNotifications();rSet()};
+$("reminderMinutes").onchange=e=>{S.set.reminderMinutes=Number(e.target.value);S.set.notifyLog={};save()};
+$("reminderTime").onchange=e=>{S.set.reminderTime=e.target.value;S.set.notifyLog={};save()};
+$("notifyPermission").onclick=async()=>{if(!("Notification" in window)){$("notifyStatus").textContent="این محیط اعلان‌های وب را پشتیبانی نمی‌کند.";return}try{const p=await Notification.requestPermission();$("notifyStatus").textContent=p==="granted"?"مجوز اعلان فعال شد.":"مجوز اعلان داده نشد.";if(p==="granted")checkInstallmentNotifications()}catch(e){$("notifyStatus").textContent="دریافت مجوز اعلان ممکن نشد."}};
 $("key").onchange=e=>{S.set.key=e.target.value.trim();save()};
 $("theme").onchange=e=>{S.set.theme=e.target.value;save();theme()};
 $("accent").onchange=e=>{S.set.accent=e.target.value;S.set.customAccent="";save();theme()};
@@ -297,6 +308,7 @@ async function addCopy(json){try{const c=(await idb("get","copies"))||[];c.unshi
 async function backupNow(manual){const json=await backupPayload(),name="nika-backup-"+iso()+".json";let where="";
  try{const h=await idb("get","dir");if(h&&await folderWrite(h,name,json,manual))where="folder"}catch(e){console.warn("folder backup failed",e)}
  await addCopy(json);S.set.lastInt=Date.now();if(!where&&manual){dl(name,json,"application/json");where="dl"}S.set.lastBackupAt=Date.now();S.set.last=Date.now();save();bnr();return where}
+function checkInstallmentNotifications(){if(!S.set.notify||!("Notification" in window)||Notification.permission!=="granted")return;const now=new Date(),[hh,mm]=(S.set.reminderTime||"09:00").split(":").map(Number);if(now.getHours()*60+now.getMinutes()<hh*60+mm)return;const offset=Number(S.set.reminderMinutes||0)*60000,log=S.set.notifyLog&&typeof S.set.notifyLog==="object"?S.set.notifyLog:{},items=[];for(const d of S.deals){for(let i=0;i<d.count;i++){if(d.paid[i])continue;const key=d.id+":"+i;if(log[key])continue;const target=due(d,i);target.setHours(hh,mm,0,0);if(now.getTime()>=target.getTime()-offset){items.push({key,name:d.name,amount:stats(d).p,index:i+1});log[key]=Date.now()}}}if(items.length){S.set.notifyLog=log;const preview=items.slice(0,4).map(x=>x.name+" (قسط "+fa(x.index)+")").join("، ");new Notification("یادآوری اقساط نیکا",{body:items.length+" قسط سررسیدشده یا نزدیک به سررسید: "+preview});save()}}
 function bnr(){const due=!!S.set.autoBackupEnabled&&S.deals.length>0&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY);$("bn").hidden=!due;if(due)$("bnt").textContent="موعد تهیه نسخه پشتیبان داخلی رسیده است."}
 async function autoTick(){if(S.set.autoBackupEnabled&&Date.now()-(S.set.lastInt||0)>=Number(S.set.backupInterval||DAY))await backupNow(false);bnr()}
 async function applyBackup(t){const j=typeof t==="string"?JSON.parse(t):t;if(!j||!Array.isArray(j.deals))throw Error("فایل پشتیبان معتبر نیست");if(j.product&&j.product!=="NikaGold")throw Error("این فایل متعلق به برنامه دیگری است");
@@ -310,7 +322,7 @@ $("pick").onclick=async()=>{try{const h=await showDirectoryPicker({mode:"readwri
 $("unpick").onclick=async()=>{try{await idb("del","dir")}catch(e){}S.set.dirName="";save();rSet()};
 $("cpr").onclick=async()=>{try{const c=await idb("get","copies");if(!c||!c[$("cp").value])throw Error("نسخه‌ای موجود نیست");if(!confirm("اطلاعات فعلی با نسخه پشتیبان انتخاب‌شده جایگزین شود؟"))return;await applyBackup(c[$("cp").value].json);$("smsg").textContent="بازیابی نسخه داخلی با موفقیت انجام شد."}catch(x){$("smsg").textContent="بازیابی ناموفق بود: "+x.message}};
 $("rs").onchange=async e=>{try{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>100*1024*1024)throw Error("حجم فایل بیش از ۱۰۰ مگابایت است");if(!confirm("اطلاعات فعلی با فایل پشتیبان جایگزین شود؟"))return;await applyBackup(await f.text());$("smsg").textContent="بازیابی فایل پشتیبان با موفقیت انجام شد."}catch(x){$("smsg").textContent="فایل پشتیبان معتبر نیست: "+x.message}finally{e.target.value=""}};
-$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();document.addEventListener("visibilitychange",()=>{if(!document.hidden){autoTick();if(tab==="set")rSet()}});setInterval(()=>{if(!document.hidden)autoTick()},60000);
+$("f_date").value=jstr(new Date());startSync();calc();render();autoTick();checkInstallmentNotifications();document.addEventListener("visibilitychange",()=>{if(!document.hidden){autoTick();checkInstallmentNotifications();if(tab==="set")rSet()}});setInterval(()=>{if(!document.hidden){autoTick();checkInstallmentNotifications()}},60000);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
