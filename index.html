@@ -100,8 +100,8 @@ nav{background:var(--c);border-top:1px solid var(--l)}
 nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
 .msg{color:var(--m)}.tag{border-radius:20px}
 .app-header{height:72px;background:var(--c);border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:6}
-.app-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--t)}
-.app-brand-mark{width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--g);display:grid;place-items:center;font-weight:900}
+.app-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--t)}
+.app-brand-mark{width:38px;height:38px;flex:0 0 38px;object-fit:contain;display:block;border-radius:8px}
 .header-persian-date{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;grid-template-rows:auto 1px auto;justify-items:stretch;gap:3px;width:max-content;max-width:calc(100% - 112px);font-size:.76rem;font-weight:800;color:var(--g);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.25;text-align:center;pointer-events:none}.header-date-divider{display:block;width:100%;height:1px;background:color-mix(in srgb,var(--g) 75%,var(--l));border-radius:1px}.header-gregorian-date{font-size:.72rem;font-weight:700;color:var(--t);direction:rtl;unicode-bidi:isolate}
 @media(max-width:650px){.app-header{height:70px}}
 @media(max-width:380px){.header-persian-date{font-size:.68rem}.header-gregorian-date{font-size:.64rem}}
@@ -180,11 +180,11 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 #set a[href^="mailto:"]{display:block;direction:ltr;text-align:left;color:#fff!important;font-weight:700;unicode-bidi:isolate;text-decoration:none}
 #set a[href^="mailto:"]:focus-visible,#set a[href^="mailto:"]:hover{text-decoration:underline}
 .about-features{display:grid;gap:10px;margin:12px 0}.about-features>div{padding:10px 12px;border:1px solid var(--l);border-radius:10px;background:var(--bg)}.about-features b{display:block;color:var(--g);font-size:.9rem}.about-features .msg{margin:4px 0 0;font-size:.8rem;line-height:1.8}
- .app-brand-name{display:inline-flex;align-items:flex-start;gap:5px;direction:ltr}.app-version-badge{position:relative;top:-.38em;color:#39ff14;font-size:.55em;font-weight:900;line-height:1;text-shadow:0 0 5px rgba(57,255,20,.38);letter-spacing:.02em}
+ .app-brand-name{display:inline-flex;align-items:flex-start;gap:5px;direction:ltr}.app-version-badge{position:relative;top:-.38em;color:#39ff14;font-size:.42em;font-weight:900;line-height:1;text-shadow:0 0 5px rgba(57,255,20,.38);letter-spacing:.02em}
 </style>
 </head>
 <body>
-<header class="app-header"><div class="app-brand"><span class="app-brand-mark">N</span><span class="app-brand-name">Nika<sup class="app-version-badge">1.0.0</sup></span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
+<header class="app-header"><div class="app-brand"><img class="app-brand-mark" src="icon.png" alt="لوگوی نیکا"><span class="app-brand-name">Nika<sup class="app-version-badge">1.0.0</sup></span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
 <main>
 <div id="appUpdate" role="status" aria-live="polite"><p>نسخه جدید نیکا آماده است.</p><button type="button" class="p" id="applyAppUpdate">به‌روزرسانی</button></div>
 <div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
