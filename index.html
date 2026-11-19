@@ -94,6 +94,7 @@ nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
 @media(max-width:650px){main{padding:18px 13px 110px}.report-brand{font-size:19px}}
 @media print{.report-brand{color:#111!important;border-color:#777!important;font-size:20px!important;text-align:center!important;margin-bottom:14px!important}}
 
+.invoice-card{position:relative;padding-top:48px}.invoice-actions{position:absolute;top:9px;left:10px;display:flex;gap:6px;direction:ltr}.invoice-actions button{font-size:12px;padding:6px 10px;min-height:30px}.invoice-actions .danger{color:var(--bad);border-color:var(--bad)}
 </style>
 </head>
 <body>
@@ -174,7 +175,7 @@ nav button.on{color:var(--g);box-shadow:inset 0 3px var(--g)}
 <div id="pa"></div>
 <script>
 const K="nika-v1",MODEL="claude-sonnet-5-5";
-let S={deals:[],set:{key:"",theme:"dark",accent:"gold",customAccent:"#d6b36b",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,reminderMinutes:60,reminderTime:"09:00",notifyLog:{},autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null;
+let S={deals:[],set:{key:"",theme:"dark",accent:"gold",customAccent:"#d6b36b",pageBackground:"",iconColor:"#000000",density:"comfortable",font:"vazirmatn",notify:true,reminderSound:true,reminderMinutes:60,reminderTime:"09:00",notifyLog:{},autoBackupEnabled:false,backupInterval:86400000,lastBackupAt:0,lastInt:0,auto:0,last:0,dirName:"",gfx:{dash:1,port:1}}},tab="inv",open=null,editInvoiceId=null;
 try{const j=JSON.parse(localStorage.getItem(K));if(j)S={deals:j.deals||[],set:{...S.set,...j.set,gfx:{...S.set.gfx,...(j.set||{}).gfx}}}}catch(e){}
 const $=i=>document.getElementById(i),save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
 const fa=n=>Math.round(n).toLocaleString("fa-IR");
@@ -205,7 +206,7 @@ function stats(d){const p=d.inst!=null?d.inst:(d.total-d.prepay)/d.count,t=T();l
 const rp=d=>d.prepay+d.count*stats(d).p;
 function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)}
 
-function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card"><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span><div class="ex" style="margin:8px 0 0"><button class="s" data-invoice-print="${d.id}">چاپ فاکتور</button></div></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
+function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card invoice-card"><div class="invoice-actions"><button class="s" data-invoice-edit="${d.id}">ویرایش</button><button class="s danger" data-invoice-delete="${d.id}">حذف</button></div><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span><div class="ex" style="margin:8px 0 0"><button class="s" data-invoice-print="${d.id}">چاپ فاکتور</button></div></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
 function rDash(){
  const g={};let rem=0,late=0;S.deals.forEach(d=>{(g[d.name]=g[d.name]||[]).push(d);const s=stats(d);rem+=s.rem;late+=s.lateAmt});
  const names=Object.keys(g);
@@ -334,10 +335,10 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
  if(!(count>=1&&count<=60))return e.textContent="تعداد اقساط باید بین ۱ تا ۶۰ باشد.";
  if(!(inst>0))return e.textContent="مبلغ هر قسط را وارد کن.";
  if(!start)return e.textContent="تاریخ اولین قسط را به شکل 1405/09/10 وارد کن.";
- const pv=$("f_period").value,periodUnit=pv.endsWith("d")?"day":"month",periodValue=Number(pv.replace("d",""));const d={id:String(Date.now()),name,grp:$("f_grp").value.trim(),phone:$("f_phone").value.trim(),item:$("f_item").value.trim(),date,total,prepay:pre,count,inst,start,periodUnit,periodValue,acc:$("f_acc").checked,fol:$("f_fol").checked,paid:Array(count).fill(false),att:null};
- let note="ثبت شد.";
+ const pv=$("f_period").value,periodUnit=pv.endsWith("d")?"day":"month",periodValue=Number(pv.replace("d",""));const old=editInvoiceId?S.deals.find(x=>x.id===editInvoiceId):null;const d={id:old?old.id:String(Date.now()),name,grp:$("f_grp").value.trim(),phone:$("f_phone").value.trim(),item:$("f_item").value.trim(),date,total,prepay:pre,count,inst,start,periodUnit,periodValue,acc:$("f_acc").checked,fol:$("f_fol").checked,paid:Array.from({length:count},(_,i)=>old?.paid?.[i]||false),att:old?.att||null};
+ let note=old?"ویرایش فاکتور ذخیره شد.":"ثبت شد.";
  if(pend){try{const b=await prep(pend);await idb("set","att:"+d.id,{blob:b,type:b.type,name:pend.name});d.att={type:b.type,name:pend.name};note="ثبت شد و فاکتور به پروفایل مشتری پیوست شد."}catch(x){note="ثبت شد، اما پیوست فاکتور ذخیره نشد."}pend=null}
- S.deals.unshift(d);save();
+ if(old){S.deals[S.deals.indexOf(old)]=d}else S.deals.unshift(d);editInvoiceId=null;save();$("fsave").textContent="ثبت فاکتور";
  e.textContent="";["f_name","f_grp","f_phone","f_item","f_total","f_inst"].forEach(i=>$(i).value="");$("f_period").value="1";$("f_pre").value=0;$("f_acc").checked=$("f_fol").checked=false;
  $("f_date").value=jstr(new Date());stT=false;startSync();calc();$("imsg").textContent=note;rInv()};
 ["f_total","f_pre","f_count","f_inst"].forEach(i=>$(i).oninput=calc);$("f_period").onchange=()=>{calc();if(!stT)startSync()};$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
@@ -345,7 +346,7 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
 document.addEventListener("click",e=>{
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
  const x=e.target.closest("[data-x]");if(x){const k=x.dataset.x;return k=="xl"?xl():k=="pdf"?pdf():k=="xlall"?xlAll():pdfAll()}
- const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);const ip=e.target.closest("[data-invoice-print]");if(ip)return printInvoice(ip.dataset.invoicePrint);
+ const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);const ip=e.target.closest("[data-invoice-print]");if(ip)return printInvoice(ip.dataset.invoicePrint);const ie=e.target.closest("[data-invoice-edit]");if(ie){const d=S.deals.find(x=>x.id===ie.dataset.invoiceEdit);if(!d)return;editInvoiceId=d.id;const set=(id,v)=>$(id).value=v??"";set("f_name",d.name);set("f_grp",d.grp);set("f_phone",d.phone);set("f_item",d.item);set("f_date",jstr(day(d.date)));set("f_total",d.total);set("f_pre",d.prepay);set("f_count",d.count);set("f_inst",d.inst);set("f_start",jstr(day(d.start)));set("f_period",d.periodUnit==="day"?(d.periodValue||7)+"d":String(d.periodValue||1));$("f_acc").checked=!!d.acc;$("f_fol").checked=!!d.fol;$("fsave").textContent="ذخیره ویرایش";$("ferr").textContent="";$("imsg").textContent="در حال ویرایش فاکتور "+d.name;$("f_name").scrollIntoView({behavior:"smooth",block:"center"});return}const idel=e.target.closest("[data-invoice-delete]");if(idel){const d=S.deals.find(x=>x.id===idel.dataset.invoiceDelete);if(!d)return;if(!confirm("فاکتور "+d.name+" حذف شود؟ این عمل قابل بازگشت نیست."))return;S.deals=S.deals.filter(x=>x.id!==d.id);idb("del","att:"+d.id).catch(()=>{});save();rInv();return}
  const b=e.target.closest("[data-open],[data-pay]");if(!b)return;
  if(b.dataset.open!=null)open=open===b.dataset.open?null:b.dataset.open;
  else{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(z=>z.id===id);d.paid[i]=!d.paid[i];save()}
