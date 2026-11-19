@@ -190,8 +190,8 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
   <label>شماره موبایل<input id="f_phone" inputmode="tel"></label>
   <label>تاریخ (شمسی)<input id="f_date" inputmode="numeric" dir="ltr" style="text-align:right" placeholder="1405/08/10"></label>
   <div class="invoice-grid"><label class="wide">شماره فاکتور / شرح کالا<input id="f_item" placeholder="مثلاً گوشی سامسونگ"></label><label>مبلغ کل کالا<input id="f_total" inputmode="numeric"></label><label>پیش‌پرداخت<input id="f_pre" inputmode="numeric" value="0"></label><label>تعداد اقساط<input id="f_count" inputmode="numeric" value="3"></label><label>مبلغ هر قسط<input id="f_inst" inputmode="numeric"></label><label>دوره پرداخت<select id="f_period"><option value="1">ماهانه</option><option value="2">هر دو ماه</option><option value="3">هر سه ماه</option><option value="14d">هر ۱۴ روز</option><option value="7d">هفتگی</option></select></label><label>تاریخ اولین قسط (شمسی)<input id="f_start" inputmode="numeric" dir="ltr" style="text-align:right" placeholder="1405/09/10"></label></div><div class="invoice-total" id="invoiceCalc"><div><small>کل بازپرداخت با پیش‌پرداخت</small><b id="f_repay_view">—</b></div><div><small>مانده پس از پیش‌پرداخت</small><b id="f_balance_view">—</b></div></div>
-  <label><span><input type="checkbox" id="f_acc" style="width:auto"> حسابداری</span></label>
-  <label><span><input type="checkbox" id="f_fol" style="width:auto"> پیگیری اقساط</span></label>
+  <label><span><input type="checkbox" id="f_acc" style="width:auto" checked> حسابداری</span></label>
+  <label><span><input type="checkbox" id="f_fol" style="width:auto" checked> پیگیری اقساط</span></label>
   <p class="msg e" id="ferr"></p>
   <button class="p" id="fsave">ثبت فاکتور</button>
  </div>
@@ -464,7 +464,7 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
  let note=old?"ویرایش فاکتور ذخیره شد.":"ثبت شد.";
  if(pend){try{const b=await prep(pend);await idb("set","att:"+d.id,{blob:b,type:b.type,name:pend.name});d.att={type:b.type,name:pend.name};note="ثبت شد و فاکتور به پروفایل مشتری پیوست شد."}catch(x){note="ثبت شد، اما پیوست فاکتور ذخیره نشد."}pend=null}
  if(old){S.deals[S.deals.indexOf(old)]=d}else S.deals.unshift(d);editInvoiceId=null;save();$("fsave").textContent="ثبت فاکتور";
- e.textContent="";["f_name","f_grp","f_phone","f_item","f_total","f_inst"].forEach(i=>$(i).value="");$("f_period").value="1";$("f_pre").value=0;$("f_acc").checked=$("f_fol").checked=false;
+ e.textContent="";["f_name","f_grp","f_phone","f_item","f_total","f_inst"].forEach(i=>$(i).value="");$("f_period").value="1";$("f_pre").value=0;$("f_acc").checked=$("f_fol").checked=true;
  $("f_date").value=jstr(new Date());stT=false;startSync();calc();$("imsg").textContent=note;rInv()};
 ["f_total","f_pre","f_count","f_inst"].forEach(i=>$(i).oninput=calc);$("f_period").onchange=()=>{calc();if(!stT)startSync()};$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
 
