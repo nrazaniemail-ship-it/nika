@@ -97,6 +97,19 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 @media(max-width:650px){.app-header{height:60px;padding:0 14px}.theme-toggle{left:12px;width:38px;height:38px}main{padding:18px 13px 110px}}
 
 .invoice-card{position:relative;padding-top:48px}.invoice-actions{position:absolute;top:9px;left:10px;display:flex;gap:6px;direction:ltr}.invoice-actions button{font-size:12px;padding:6px 10px;min-height:30px}.invoice-actions .danger{color:var(--bad);border-color:var(--bad)}
+
+.dash-section-title{font-size:17px;margin:22px 2px 12px;color:var(--t)}
+.dash-insights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.dash-insight{background:var(--c);border:1px solid var(--l);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dash-insight small,.dash-insight span{color:var(--m);font-size:12px}.dash-insight b{font-size:17px;color:var(--t);overflow-wrap:anywhere}
+.dash-insight.alert{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--c))}.dash-insight.alert b{color:var(--bad)}.dash-insight.good{border-color:var(--ok)}
+.dash-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0}
+.dash-chart{min-width:0}.dash-bar-row{margin:13px 0}.dash-bar-row .top{gap:8px;align-items:center}.dash-bar-row .top span{font-size:12px;color:var(--m)}.dash-bar-row .top b{font-size:12px;white-space:nowrap}
+.dash-track{height:9px;border-radius:10px;background:var(--panel2);border:1px solid var(--l);overflow:hidden;margin-top:6px}.dash-track i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,var(--g),color-mix(in srgb,var(--g) 60%,#fff))}
+.dash-follow{margin:10px 0}.dash-follow-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--l)}.dash-follow-row:last-child{border:0}.dash-follow-row>div{display:flex;flex-direction:column;gap:4px;min-width:0}.dash-follow-row small{font-size:12px;color:var(--m)}.dash-follow-row strong{color:var(--bad);white-space:nowrap;font-size:13px}
+.dash-note{padding:8px 2px;font-size:11px;line-height:1.8}
+@media(max-width:700px){.dash-insights{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-chart-grid{grid-template-columns:1fr}.dash-insight b{font-size:15px}}
+
 </style>
 </head>
 <body>
@@ -128,7 +141,7 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 </section>
 <section id="dash" class="tab"><h1>داشبورد مشتریان</h1>
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
- <div class="sum" id="dsum"></div><div id="dl"></div></section>
+ <div class="sum" id="dsum"></div><div id="dashAnalytics"></div><div id="dl"></div></section>
 <section id="port" class="tab"><h1>پورتفو و جریان نقدینگی</h1><div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div><div id="pl"></div></section><section id="finance" class="tab"><h1>مالی و نرخ بازده</h1><div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div><div id="fl"></div></section><section id="calendar" class="tab"><h1>تقویم سررسید اقساط</h1><div id="cl"></div></section>
 <section id="set" class="tab"><h1>تنظیمات</h1>
  <div class="card f"><b>خروجی کل</b>
@@ -210,7 +223,47 @@ const rp=d=>d.prepay+d.count*stats(d).p;
 function dl(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1e3)}
 
 function rInv(){$("recent").innerHTML=S.deals.slice(0,5).map(d=>`<div class="card invoice-card"><div class="invoice-actions"><button class="s" data-invoice-edit="${d.id}">ویرایش</button><button class="s danger" data-invoice-delete="${d.id}">حذف</button></div><div class="top"><b>${esc(d.name)}</b><span>${fd(day(d.date))}</span></div><span class="msg">${esc(d.item||"")} — ${fa(d.total)} — ${fa(d.count)} قسط × ${fa(stats(d).p)}</span><div class="ex" style="margin:8px 0 0"><button class="s" data-invoice-print="${d.id}">چاپ فاکتور</button></div></div>`).join("")||'<p class="msg">هنوز فاکتوری ثبت نشده.</p>'}
+function dashMoney(v){return fa(Math.round(v||0))+" تومان"}
+function dashBars(title,items,sub){
+ const max=Math.max(1,...items.map(x=>x.value));
+ return '<div class="card dash-chart"><b>'+title+'</b>'+(sub?'<p class="msg">'+sub+'</p>':'')+(items.length?items.map(x=>'<div class="dash-bar-row"><div class="top"><span>'+esc(x.label)+'</span><b>'+dashMoney(x.value)+'</b></div><div class="dash-track"><i style="width:'+Math.max(x.value>0?2:0,x.value/max*100)+'%"></i></div></div>').join(""):'<p class="msg">اطلاعات کافی برای نمایش نمودار وجود ندارد.</p>')+'</div>'
+}
+function dashAnalytics(){
+ const today=T(),start=new Date(today.getFullYear(),today.getMonth(),1),sales={},future={},aging={"۱ تا ۳۰ روز":0,"۳۱ تا ۶۰ روز":0,"بیش از ۶۰ روز":0};
+ const customers={};let due7=0,due30=0,overdue=0,overdueCount=0,dueToday=0,unpaid=0,paidDue=0;
+ const monthLabel=d=>d.toLocaleDateString("fa-IR",{month:"short",year:"2-digit"});
+ for(let k=5;k>=0;k--){const d=new Date(start.getFullYear(),start.getMonth()-k,1);sales[d.getFullYear()+"-"+d.getMonth()]={label:monthLabel(d),value:0}}
+ for(let k=0;k<6;k++){const d=new Date(start.getFullYear(),start.getMonth()+k,1);future[d.getFullYear()+"-"+d.getMonth()]={label:monthLabel(d),value:0}}
+ S.deals.forEach(d=>{
+  const saleDate=day(d.date),sk=saleDate.getFullYear()+"-"+saleDate.getMonth();
+  if(sales[sk])sales[sk].value+=Number(d.total)||0;
+  const c=customers[d.name]||(customers[d.name]={name:d.name,phone:d.phone||"",balance:0,overdue:0,overdueCount:0,dueCount:0,paidDue:0});
+  const q=stats(d);c.balance+=q.rem;
+  for(let i=0;i<d.count;i++){
+   const dueDate=due(d,i),amount=Number(q.p)||0,delta=Math.floor((today-dueDate)/864e5);
+   if(d.paid[i]){if(dueDate<=today){paidDue++;c.paidDue++}continue}
+   unpaid++;
+   if(dueDate<=today){overdue+=amount;overdueCount++;c.overdue+=amount;c.overdueCount++;c.dueCount++;
+    if(delta<=30)aging["۱ تا ۳۰ روز"]+=amount;else if(delta<=60)aging["۳۱ تا ۶۰ روز"]+=amount;else aging["بیش از ۶۰ روز"]+=amount;
+   }else{
+    if(dueDate.getTime()-today.getTime()<=7*864e5)due7+=amount;
+    if(dueDate.getTime()-today.getTime()<=30*864e5)due30+=amount;
+    const fk=dueDate.getFullYear()+"-"+dueDate.getMonth();if(future[fk])future[fk].value+=amount;
+   }
+  }
+ });
+ const top=Object.values(customers).sort((a,b)=>b.balance-a.balance).slice(0,6);
+ const risk=Object.values(customers).filter(c=>c.overdue>0).sort((a,b)=>b.overdue-a.overdue).slice(0,5);
+ const totalRem=Object.values(customers).reduce((a,c)=>a+c.balance,0),topShare=totalRem&&top[0]?top[0].balance/totalRem*100:0;
+ const dueRatio=paidDue+overdueCount?paidDue/(paidDue+overdueCount)*100:0;
+ const attention='<div class="dash-insights"><div class="dash-insight '+(overdue?'alert':'good')+'"><small>مطالبات معوق</small><b>'+dashMoney(overdue)+'</b><span>'+fa(overdueCount)+' قسط سررسیدگذشته</span></div><div class="dash-insight"><small>سررسید ۷ روز آینده</small><b>'+dashMoney(due7)+'</b><span>برای برنامه‌ریزی وصول</span></div><div class="dash-insight"><small>سررسید ۳۰ روز آینده</small><b>'+dashMoney(due30)+'</b><span>نیازمند یادآوری به مشتری</span></div><div class="dash-insight"><small>سهم بزرگ‌ترین بدهکار</small><b>'+fa(topShare.toFixed(1))+'٪</b><span>از کل مانده مطالبات</span></div></div>';
+ const charts='<div class="dash-chart-grid">'+dashBars("روند فروش ماهانه",Object.values(sales),"بر اساس تاریخ ثبت فاکتور؛ شش ماه اخیر")+dashBars("برآورد اقساط سررسیدشونده",Object.values(future),"مبالغ پرداخت‌نشده در ماه جاری و پنج ماه آینده")+dashBars("بزرگ‌ترین مانده‌های مشتریان",top.map(c=>({label:c.name,value:c.balance})),"برای شناسایی تمرکز مطالبات و وابستگی به چند مشتری")+dashBars("سن مطالبات معوق",Object.entries(aging).map(([label,value])=>({label,value})),"مبلغ اقساط پرداخت‌نشده بر اساس تعداد روزهای تأخیر")+'</div>';
+ const follow='<div class="card dash-follow"><b>فهرست پیگیری فوری</b><p class="msg">مشتریانی که بیشترین مبلغ قسط معوق را دارند؛ با مشتری تماس بگیر و وضعیت پرداخت را ثبت کن.</p>'+(risk.length?risk.map(c=>'<div class="dash-follow-row"><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"شماره تماس ثبت نشده")+' · '+fa(c.overdueCount)+' قسط معوق</small></div><strong>'+dashMoney(c.overdue)+'</strong></div>').join(""):'<p class="msg">در حال حاضر قسط معوق ثبت‌شده‌ای وجود ندارد.</p>')+'</div>';
+ const caveat='<p class="msg dash-note">نکته دقت داده‌ها: تاریخ واقعی دریافت وجه برای اقساط در داده‌های فعلی ذخیره نمی‌شود؛ بنابراین نمودار فروش بر اساس تاریخ فاکتور و نمودار اقساط بر اساس سررسید قراردادی است. نسبت تسویه نیز فقط اقساط سررسیدشده را می‌سنجد، نه خوش‌حسابی تاریخی با تاریخ دقیق پرداخت.</p>';
+ $("dashAnalytics").innerHTML='<h2 class="dash-section-title">مرکز کنترل فروش و ریسک اقساط</h2>'+attention+charts+follow+caveat;
+}
 function rDash(){
+ dashAnalytics();
  const g={};let rem=0,late=0;S.deals.forEach(d=>{(g[d.name]=g[d.name]||[]).push(d);const s=stats(d);rem+=s.rem;late+=s.lateAmt});
  const names=Object.keys(g);
  $("dsum").innerHTML=`<div><small>مشتری</small><b>${fa(names.length)}</b></div><div><small>فاکتور</small><b>${fa(S.deals.length)}</b></div><div><small>مطالبات</small><b>${fa(rem)}</b></div><div class="${late?"b":""}"><small>عقب‌افتاده</small><b>${fa(late)}</b></div>`;
