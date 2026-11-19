@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        if (state == null) webView.loadUrl("https://nrazaniemail-ship-it.github.io/nika-gold/");
+        if (state == null) webView.loadUrl("https://nrazaniemail-ship-it.github.io/nika/");
         else webView.restoreState(state);
     }
 
