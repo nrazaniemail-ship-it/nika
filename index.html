@@ -314,7 +314,7 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
  S.deals.unshift(d);save();
  e.textContent="";["f_name","f_grp","f_phone","f_item","f_total","f_inst"].forEach(i=>$(i).value="");$("f_period").value="1";$("f_pre").value=0;$("f_acc").checked=$("f_fol").checked=false;
  $("f_date").value=jstr(new Date());stT=false;startSync();calc();$("imsg").textContent=note;rInv()};
-["f_total","f_pre","f_count","f_inst"].forEach(i=>$(i).oninput=calc);$("f_period").onchange=calc;$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
+["f_total","f_pre","f_count","f_inst"].forEach(i=>$(i).oninput=calc);$("f_period").onchange=()=>{calc();if(!stT)startSync()};$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
 
 document.addEventListener("click",e=>{
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
