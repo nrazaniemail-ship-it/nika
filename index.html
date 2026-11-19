@@ -51,6 +51,11 @@ input[type=date]{direction:ltr;text-align:right}
 .s{background:none;border:1px solid var(--g);color:var(--g);border-radius:10px;padding:10px}
 .ex{display:flex;gap:8px;margin-bottom:12px}.ex button{flex:1}
 .msg{margin:0;font-size:.85rem;min-height:1.2em;color:var(--m)}.msg.e{color:var(--bad)}
+.scan-info-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:2px 0;border:0;background:transparent;color:var(--t);font:inherit;font-weight:800;text-align:start}
+.scan-info-chevron{color:var(--m);font-size:1.1em;transition:transform .18s ease}
+.scan-info-toggle[aria-expanded="true"] .scan-info-chevron{transform:rotate(180deg)}
+.scan-info-text{line-height:1.9;padding-top:2px}
+.scan-info-text[hidden]{display:none}
 .sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .sum div{background:var(--c);border:1px solid var(--l);border-radius:12px;padding:10px}.sum small{display:block;color:var(--m);font-size:.75rem}.sum .b b{color:var(--bad)}
 .head{width:100%;background:none;border:0;color:inherit;text-align:start;display:grid;gap:8px;padding:0}
@@ -192,8 +197,8 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
  
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
  <div class="card f">
-  <b>اسکن هوشمند فاکتور و تکمیل خودکار فرم</b>
-  <p class="msg">عکس را با دوربین بگیر یا از گالری/PDF انتخاب کن. نیکا اطلاعات مشتری و مبالغ را استخراج و فرم را تکمیل می‌کند. بدون کلید API از OCR فارسی روی دستگاه استفاده می‌شود؛ با کلید API تحلیل هوشمند دقیق‌تر فعال است. قبل از ثبت، مبالغ و تاریخ را کنترل کن.</p>
+  <button type="button" class="scan-info-toggle" aria-expanded="false" aria-controls="scanInvoiceInfo">اسکن هوشمند فاکتور و تکمیل خودکار فرم <span class="scan-info-chevron" aria-hidden="true">▾</span></button>
+  <p class="msg scan-info-text" id="scanInvoiceInfo" hidden>عکس را با دوربین بگیر یا از گالری/PDF انتخاب کن. نیکا اطلاعات مشتری و مبالغ را استخراج و فرم را تکمیل می‌کند. بدون کلید API از OCR فارسی روی دستگاه استفاده می‌شود؛ با کلید API تحلیل هوشمند دقیق‌تر فعال است. قبل از ثبت، مبالغ و تاریخ را کنترل کن.</p>
   <div class="ex"><button class="s" data-pick="cam">دوربین</button><button class="s" data-pick="gal">گالری</button><button class="s" data-pick="file">فایل</button></div>
   <input id="i_cam" type="file" accept="image/*" capture="environment" hidden>
   <input id="i_gal" type="file" accept="image/*" hidden>
@@ -511,6 +516,8 @@ $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),tot
 ["f_total","f_pre","f_inst"].forEach(i=>$(i).oninput=()=>{formatMoneyInput($(i));calc()});$("f_count").oninput=calc;$("f_period").onchange=()=>{calc();if(!stT)startSync()};$("f_date").oninput=startSync;$("f_start").oninput=()=>{stT=true};
 
 document.addEventListener("click",e=>{
+ const scanInfo=e.target.closest(".scan-info-toggle");if(scanInfo){const panel=document.getElementById(scanInfo.getAttribute("aria-controls"));if(panel){const expanded=scanInfo.getAttribute("aria-expanded")==="true";scanInfo.setAttribute("aria-expanded",String(!expanded));panel.hidden=expanded;}return}
+
  const n=e.target.closest("nav button");if(n)return show(n.dataset.t);
  const x=e.target.closest("[data-x]");if(x){const k=x.dataset.x;return k=="xl"?xl():k=="pdf"?pdf():k=="xlall"?xlAll():pdfAll()}
  const at=e.target.closest("[data-att]");if(at)return showAtt(at.dataset.att);const ic=e.target.closest("[data-invoice-collapse]");if(ic){const card=ic.closest(".invoice-card");if(!card)return;const collapsed=card.classList.toggle("collapsed");ic.setAttribute("aria-expanded",String(!collapsed));ic.textContent=collapsed?"▸":"▾";ic.setAttribute("aria-label",collapsed?"نمایش جزئیات":"بستن جزئیات");ic.title=collapsed?"نمایش جزئیات":"بستن جزئیات";return}const ip=e.target.closest("[data-invoice-print]");if(ip)return printInvoice(ip.dataset.invoicePrint);const ie=e.target.closest("[data-invoice-edit]");if(ie){const d=S.deals.find(x=>x.id===ie.dataset.invoiceEdit);if(!d)return;editInvoiceId=d.id;const set=(id,v)=>$(id).value=v??"";set("f_name",d.name);set("f_grp",d.grp);set("f_phone",d.phone);set("f_item",d.item);set("f_date",jstr(day(d.date)));set("f_total",d.total);set("f_pre",d.prepay);set("f_count",d.count);set("f_inst",d.inst);formatInvoiceMoneyInputs();calc();set("f_start",jstr(day(d.start)));set("f_period",d.periodUnit==="day"?(d.periodValue||7)+"d":String(d.periodValue||1));$("f_acc").checked=!!d.acc;$("f_fol").checked=!!d.fol;$("fsave").textContent="ذخیره ویرایش";$("ferr").textContent="";$("imsg").textContent="در حال ویرایش فاکتور "+d.name;$("f_name").scrollIntoView({behavior:"smooth",block:"center"});return}const idel=e.target.closest("[data-invoice-delete]");if(idel){const d=S.deals.find(x=>x.id===idel.dataset.invoiceDelete);if(!d)return;if(!confirm("فاکتور "+d.name+" حذف شود؟ این عمل قابل بازگشت نیست."))return;S.deals=S.deals.filter(x=>x.id!==d.id);idb("del","att:"+d.id).catch(()=>{});save();rInv();return}
