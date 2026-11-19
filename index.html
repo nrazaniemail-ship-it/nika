@@ -97,8 +97,11 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 @media(max-width:650px){.app-header{height:60px;padding:0 14px}.theme-toggle{left:12px;width:38px;height:38px}main{padding:18px 13px 110px}}
 
 .invoice-card{position:relative;padding-top:14px}.invoice-card-heading{padding-inline-end:112px;margin-bottom:12px;display:grid;gap:3px;min-height:34px}.invoice-card-heading strong{font-size:.95rem;line-height:1.6;color:var(--t)}.invoice-card-heading .invoice-code{justify-self:start;font-size:.72rem;padding:2px 7px}.invoice-actions{position:absolute;top:10px;left:10px;display:flex;gap:6px;direction:ltr}.invoice-actions button{font-size:12px;padding:6px 10px;min-height:32px}.invoice-actions .danger{color:var(--bad);border-color:var(--bad)}
-.invoice-actions .invoice-icon-btn{width:34px;min-width:34px;height:32px;padding:5px;display:grid;place-items:center}.invoice-actions .invoice-icon-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.invoice-actions .invoice-collapse{width:34px;min-width:34px;height:32px;padding:0;display:grid;place-items:center;color:var(--g);border-color:var(--g);font-size:20px;line-height:1}
+.invoice-actions .invoice-icon-btn,.invoice-actions .invoice-collapse{width:34px;min-width:34px;height:32px;padding:5px;display:grid;place-items:center;background:transparent;border:0;border-radius:0;box-shadow:none}
+.invoice-actions .invoice-icon-btn{color:var(--m)}.invoice-actions .invoice-icon-btn.danger{color:var(--bad)}
+.invoice-actions .invoice-icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.invoice-actions .invoice-collapse{color:var(--g);font-size:20px;line-height:1}
+.invoice-actions .invoice-icon-btn:hover,.invoice-actions .invoice-collapse:hover{background:var(--panel2);border-radius:7px}
 .invoice-card.collapsed .invoice-card-content{display:none}
 
 
