@@ -11,17 +11,22 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.webkit.WebViewAssetLoader;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
+    private WebViewAssetLoader assetLoader;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         getWindow().setStatusBarColor(android.graphics.Color.rgb(138,100,20));
         getWindow().setNavigationBarColor(android.graphics.Color.rgb(25,25,25));
+        assetLoader = new WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+            .build();
         webView = new WebView(this);
         webView.setBackgroundColor(android.graphics.Color.rgb(250,247,240));
         WebSettings settings = webView.getSettings();
@@ -37,10 +42,13 @@ public class MainActivity extends Activity {
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         webView.setWebViewClient(new WebViewClient() {
+            @Override public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                return assetLoader.shouldInterceptRequest(request.getUrl());
+            }
             @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 if ("https".equalsIgnoreCase(uri.getScheme()) &&
-                    "nrazaniemail-ship-it.github.io".equalsIgnoreCase(uri.getHost())) return false;
+                    "appassets.androidplatform.net".equalsIgnoreCase(uri.getHost())) return false;
                 try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
                 catch (ActivityNotFoundException ignored) {}
                 return true;
@@ -64,7 +72,7 @@ public class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        if (state == null) webView.loadUrl("https://nrazaniemail-ship-it.github.io/nika/");
+        if (state == null) webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
         else webView.restoreState(state);
     }
 
