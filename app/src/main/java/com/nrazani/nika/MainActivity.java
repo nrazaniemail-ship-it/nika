@@ -5,6 +5,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -72,8 +75,36 @@ public class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        if (state == null) webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
-        else webView.restoreState(state);
+        if (state == null) loadLocalApp();
+        else {
+            if (webView.restoreState(state) == null) loadLocalApp();
+        }
+    }
+
+    private void loadLocalApp() {
+        try (InputStream input = getAssets().open("www/index.html");
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+            String html = output.toString(StandardCharsets.UTF_8.name());
+            webView.loadDataWithBaseURL(
+                "https://appassets.androidplatform.net/assets/www/",
+                html,
+                "text/html",
+                "UTF-8",
+                null
+            );
+        } catch (Exception error) {
+            String message = "فایل اصلی برنامه داخل APK پیدا نشد: " + error.getMessage();
+            webView.loadDataWithBaseURL(
+                "https://appassets.androidplatform.net/",
+                "<meta charset='utf-8'><body dir='rtl' style='font-family:sans-serif;padding:24px'><h3>خطا در اجرای نیکا</h3><p>" + message + "</p></body>",
+                "text/html",
+                "UTF-8",
+                null
+            );
+        }
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
