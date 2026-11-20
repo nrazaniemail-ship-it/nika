@@ -14,6 +14,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 import androidx.webkit.WebViewAssetLoader;
 
+// The app entry point is served exclusively from the bundled Android assets.
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
     private static final String APP_URL = "https://appassets.androidplatform.net/assets/index.html";
