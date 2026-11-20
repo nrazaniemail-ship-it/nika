@@ -1,26 +1,39 @@
 package com.nrazani.nika;
 
 import android.app.Activity;
+import android.print.PageRange;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
+import android.util.Base64;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import java.io.OutputStream;
 import androidx.webkit.WebViewAssetLoader;
 
 // The app entry point is served exclusively from the bundled Android assets.
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
+    private static final int SAVE_FILE_REQUEST = 4103;
     private static final String APP_URL = "https://appassets.androidplatform.net/assets/index.html";
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
     private WebViewAssetLoader assetLoader;
+    private String pendingFileName;
+    private String pendingMimeType;
+    private String pendingBase64;
 
     @Override
     public void onCreate(Bundle state) {
@@ -69,6 +82,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        webView.addJavascriptInterface(new NikaBridge(), "NikaAndroid");
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
@@ -97,6 +112,87 @@ public class MainActivity extends Activity {
         }
     }
 
+    private final class NikaBridge {
+        @JavascriptInterface
+        public void saveFile(String name, String mimeType, String base64) {
+            if (name == null || base64 == null || base64.isEmpty()) return;
+            runOnUiThread(() -> {
+                pendingFileName = name.replaceAll("[\\\\/:*?\\\"<>|]", "_");
+                pendingMimeType = (mimeType == null || mimeType.isEmpty())
+                    ? "application/octet-stream" : mimeType;
+                pendingBase64 = base64;
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType(pendingMimeType);
+                intent.putExtra(Intent.EXTRA_TITLE, pendingFileName);
+                try {
+                    startActivityForResult(intent, SAVE_FILE_REQUEST);
+                } catch (ActivityNotFoundException e) {
+                    clearPendingFile();
+                    Toast.makeText(MainActivity.this, "امکان باز کردن پنجره ذخیره فایل وجود ندارد.", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void printPage(String jobName) {
+            runOnUiThread(() -> printWebView(jobName));
+        }
+    }
+
+    private void printWebView(String jobName) {
+        if (android.os.Build.VERSION.SDK_INT < 19 || webView == null) {
+            Toast.makeText(this, "چاپ در این نسخه اندروید پشتیبانی نمی‌شود.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        try {
+            PrintManager manager = (PrintManager) getSystemService(PRINT_SERVICE);
+            if (manager == null) {
+                Toast.makeText(this, "سرویس چاپ دستگاه در دسترس نیست.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            String title = (jobName == null || jobName.trim().isEmpty()) ? "Nika report" : jobName;
+            PrintDocumentAdapter source = webView.createPrintDocumentAdapter(title);
+            PrintDocumentAdapter adapter = new PrintDocumentAdapter() {
+                @Override
+                public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
+                                     CancellationSignal cancellationSignal, LayoutResultCallback callback,
+                                     android.os.Bundle extras) {
+                    source.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, extras);
+                }
+
+                @Override
+                public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
+                                    CancellationSignal cancellationSignal, WriteResultCallback callback) {
+                    source.onWrite(pages, destination, cancellationSignal, callback);
+                }
+
+                @Override
+                public void onFinish() {
+                    source.onFinish();
+                    if (webView != null) {
+                        webView.post(() -> webView.evaluateJavascript(
+                            "window.NikaFinishPrint&&window.NikaFinishPrint()", null));
+                    }
+                }
+            };
+            PrintAttributes attributes = new PrintAttributes.Builder()
+                .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                .setResolution(new PrintAttributes.Resolution("nika", "Nika", 300, 300))
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                .build();
+            manager.print(title, adapter, attributes);
+        } catch (Exception e) {
+            Toast.makeText(this, "آماده‌سازی PDF ناموفق بود: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void clearPendingFile() {
+        pendingFileName = null;
+        pendingMimeType = null;
+        pendingBase64 = null;
+    }
+
     private void loadLocalApp() {
         // All app files are packaged at the root of app/src/main/assets.
         // WebViewAssetLoader maps /assets/... directly to that directory.
@@ -105,6 +201,24 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SAVE_FILE_REQUEST) {
+            try {
+                if (resultCode == RESULT_OK && data != null && data.getData() != null && pendingBase64 != null) {
+                    byte[] bytes = Base64.decode(pendingBase64, Base64.DEFAULT);
+                    try (OutputStream output = getContentResolver().openOutputStream(data.getData())) {
+                        if (output == null) throw new java.io.IOException("فایل مقصد باز نشد");
+                        output.write(bytes);
+                        output.flush();
+                    }
+                    Toast.makeText(this, "فایل با موفقیت ذخیره شد.", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Toast.makeText(this, "ذخیره فایل ناموفق بود: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            } finally {
+                clearPendingFile();
+            }
+            return;
+        }
         if (requestCode == FILE_CHOOSER_REQUEST && fileCallback != null) {
             Uri[] results = null;
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
