@@ -41,22 +41,32 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Bundle current Nika web application
+      - name: Bundle Nika web app into Android assets root
+        shell: bash
         run: |
           set -euo pipefail
-          mkdir -p app/src/main/assets/www
-          cp index.html manifest.webmanifest sw.js icon.png app/src/main/assets/www/
-          test -s app/src/main/assets/www/index.html
+          ASSETS="app/src/main/assets"
+          mkdir -p "$ASSETS"
+          rm -rf "$ASSETS/www"
+          cp index.html manifest.webmanifest sw.js icon.png "$ASSETS/"
+          test -s "$ASSETS/index.html"
+          test -s "$ASSETS/manifest.webmanifest"
+          test -s "$ASSETS/sw.js"
+          test -s "$ASSETS/icon.png"
+          echo "Bundled files:"
+          ls -lah "$ASSETS"
 
       - name: Build debug APK
         run: gradle --no-daemon clean :app:assembleDebug
 
-      - name: Verify APK output
+      - name: Verify APK contains local web app
         shell: bash
         run: |
           set -euo pipefail
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
+          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.png)$'
+          unzip -p "$APK" assets/index.html | grep -q '<html'
           echo "APK_SIZE=$(stat -c%s "$APK")" >> "$GITHUB_ENV"
           sha256sum "$APK" | tee app/build/outputs/apk/debug/SHA256SUMS.txt
           echo "APK_PATH=$APK" >> "$GITHUB_ENV"
