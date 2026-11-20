@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
 }
+
 android {
     namespace 'com.nrazani.nika'
     compileSdk 35
@@ -11,6 +12,22 @@ android {
         versionCode 1
         versionName '1.0.0'
     }
+}
+
+// Reuse the exact logo maintained at the repository root for the Android launcher.
+// This avoids a second, outdated hand-drawn vector icon drifting out of sync.
+def generatedNikaIconRes = layout.buildDirectory.dir("generated/res/nikaLauncher")
+
+android.sourceSets.main.res.srcDir(generatedNikaIconRes)
+
+tasks.register("copyNikaLauncherIcon", Copy) {
+    from(rootProject.file("icon.jpg"))
+    into(generatedNikaIconRes.map { it.dir("drawable-nodpi") })
+    rename { "nika_launcher.jpg" }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("copyNikaLauncherIcon")
 }
 
 dependencies {
