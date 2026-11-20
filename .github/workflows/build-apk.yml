@@ -72,7 +72,7 @@ jobs:
           set -euo pipefail
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg|icon.jpg|vendor/xlsx.full.min.js)$'
+          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg|icon.jpg|vendor/xlsx.full.min.js|vendor/tesseract/tesseract.min.js)$'
           unzip -p "$APK" assets/index.html | grep -q '<html'
           unzip -p "$APK" assets/vendor/xlsx.full.min.js | grep -q 'xlsx.js'
           unzip -p "$APK" assets/vendor/tesseract/tesseract.min.js | grep -q "Tesseract"
