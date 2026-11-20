@@ -5,33 +5,34 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import androidx.webkit.WebViewAssetLoader;
 import android.widget.Toast;
+import androidx.webkit.WebViewAssetLoader;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
+    private static final String APP_URL = "https://appassets.androidplatform.net/assets/index.html";
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
     private WebViewAssetLoader assetLoader;
 
-    @Override public void onCreate(Bundle state) {
+    @Override
+    public void onCreate(Bundle state) {
         super.onCreate(state);
-        getWindow().setStatusBarColor(android.graphics.Color.rgb(138,100,20));
-        getWindow().setNavigationBarColor(android.graphics.Color.rgb(25,25,25));
+        getWindow().setStatusBarColor(android.graphics.Color.rgb(138, 100, 20));
+        getWindow().setNavigationBarColor(android.graphics.Color.rgb(25, 25, 25));
+
         assetLoader = new WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
             .build();
+
         webView = new WebView(this);
-        webView.setBackgroundColor(android.graphics.Color.rgb(250,247,240));
+        webView.setBackgroundColor(android.graphics.Color.rgb(250, 247, 240));
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -44,28 +45,42 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
+
         webView.setWebViewClient(new WebViewClient() {
-            @Override public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            @Override
+            public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return assetLoader.shouldInterceptRequest(request.getUrl());
             }
-            @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
-                if ("https".equalsIgnoreCase(uri.getScheme()) &&
-                    "appassets.androidplatform.net".equalsIgnoreCase(uri.getHost())) return false;
-                try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
-                catch (ActivityNotFoundException ignored) {}
+                if ("https".equalsIgnoreCase(uri.getScheme())
+                    && "appassets.androidplatform.net".equalsIgnoreCase(uri.getHost())) {
+                    return false;
+                }
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                } catch (ActivityNotFoundException ignored) {
+                    Toast.makeText(MainActivity.this, "برنامه‌ای برای باز کردن این پیوند پیدا نشد.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
+
         webView.setWebChromeClient(new WebChromeClient() {
-            @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
                 try {
-                    startActivityForResult(Intent.createChooser(intent, "انتخاب تصویر یا PDF فاکتور"), FILE_CHOOSER_REQUEST);
+                    startActivityForResult(
+                        Intent.createChooser(intent, "انتخاب تصویر یا PDF فاکتور"),
+                        FILE_CHOOSER_REQUEST
+                    );
                 } catch (ActivityNotFoundException e) {
                     fileCallback = null;
                     Toast.makeText(MainActivity.this, "برنامه‌ای برای انتخاب فایل پیدا نشد.", Toast.LENGTH_LONG).show();
@@ -74,43 +89,26 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+
         setContentView(webView);
-        if (state == null) loadLocalApp();
-        else {
-            if (webView.restoreState(state) == null) loadLocalApp();
+        if (state == null || webView.restoreState(state) == null) {
+            loadLocalApp();
         }
     }
 
     private void loadLocalApp() {
-        try (InputStream input = getAssets().open("www/index.html");
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[8192];
-            int count;
-            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
-            String html = output.toString(StandardCharsets.UTF_8.name());
-            webView.loadDataWithBaseURL(
-                "https://appassets.androidplatform.net/assets/www/",
-                html,
-                "text/html",
-                "UTF-8",
-                null
-            );
-        } catch (Exception error) {
-            String message = "فایل اصلی برنامه داخل APK پیدا نشد: " + error.getMessage();
-            webView.loadDataWithBaseURL(
-                "https://appassets.androidplatform.net/",
-                "<meta charset='utf-8'><body dir='rtl' style='font-family:sans-serif;padding:24px'><h3>خطا در اجرای نیکا</h3><p>" + message + "</p></body>",
-                "text/html",
-                "UTF-8",
-                null
-            );
-        }
+        // All app files are packaged at the root of app/src/main/assets.
+        // WebViewAssetLoader maps /assets/... directly to that directory.
+        webView.loadUrl(APP_URL);
     }
 
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == FILE_CHOOSER_REQUEST && fileCallback != null) {
             Uri[] results = null;
-            if (resultCode == RESULT_OK && data != null && data.getData() != null) results = new Uri[]{data.getData()};
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                results = new Uri[]{data.getData()};
+            }
             fileCallback.onReceiveValue(results);
             fileCallback = null;
             return;
@@ -118,17 +116,20 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override protected void onSaveInstanceState(Bundle outState) {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (webView != null) webView.saveState(outState);
     }
 
-    @Override public void onBackPressed() {
+    @Override
+    public void onBackPressed() {
         if (webView != null && webView.canGoBack()) webView.goBack();
         else super.onBackPressed();
     }
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         if (fileCallback != null) fileCallback.onReceiveValue(null);
         if (webView != null) webView.destroy();
         super.onDestroy();
