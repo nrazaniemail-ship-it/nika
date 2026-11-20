@@ -576,13 +576,17 @@ async function readInvoiceLocal(f,onProgress){
  const passes=pages.length*3,candidates=[],allText=[];let completed=0,worker=null;
  try{
   onProgress(10,"راه‌اندازی موتور تشخیص فارسی و انگلیسی…");
-  worker=await Tesseract.createWorker("fas+eng",1,{
-   logger:m=>{if(m.status==="recognizing text"&&Number.isFinite(m.progress))onProgress(10+(completed+m.progress)*82/passes,"خواندن متن صفحه "+fa(Math.min(pages.length,Math.floor(completed/3)+1))+"…");},
-   workerPath:"https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
-   corePath:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5",
-   langPath:"https://tessdata.projectnaptha.com/4.0.0",
-   gzip:true
-  });
+  const modelSources=[{langPath:"https://cdn.jsdelivr.net/gh/tesseract-ocr/tessdata_best@main",gzip:false},{langPath:"https://tessdata.projectnaptha.com/4.0.0",gzip:true}];
+  let modelError=null;
+  for(const model of modelSources){try{
+   worker=await Tesseract.createWorker("fas+eng",1,{
+    logger:m=>{if(m.status==="recognizing text"&&Number.isFinite(m.progress))onProgress(10+(completed+m.progress)*82/passes,"خواندن متن صفحه "+fa(Math.min(pages.length,Math.floor(completed/3)+1))+"…");},
+    workerPath:"https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
+    corePath:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5",
+    langPath:model.langPath,gzip:model.gzip,cacheMethod:"write"
+   });break;
+  }catch(error){modelError=error}}
+  if(!worker)throw Error("بارگذاری مدل دقیق فارسی ناموفق بود: "+(modelError&&modelError.message||"خطای ناشناخته"));
   await worker.setParameters({preserve_interword_spaces:"1",user_defined_dpi:"300"});
   for(const page of pages){
    onProgress(10+completed*82/passes,"بهینه‌سازی تصویر صفحه "+fa(page.page)+"…");
