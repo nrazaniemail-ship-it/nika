@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#8a6414">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" href="icon.svg">
+<link rel="icon" type="image/jpeg" href="icon.jpg">
 <title>Nika</title>
 <script src="vendor/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -204,10 +204,39 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 .jalali-picker-foot{display:flex;justify-content:space-between;gap:8px;margin-top:14px}
 .jalali-picker-foot button{padding:9px 14px;border:1px solid var(--l);border-radius:10px;background:var(--soft);color:var(--t)}
 .jalali-picker-foot .confirm{background:var(--g);border-color:var(--g);color:var(--gt);font-weight:800}
+
+/* Print/PDF must be independent from the selected application theme. */
+@media print{
+  html,body,body *{
+    background-color:#fff!important;
+    background-image:none!important;
+    color:#111!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  body{margin:0!important;padding:0!important}
+  .app-header,nav,.ex,.theme-toggle,#appUpdate,
+  button,.no-print{display:none!important}
+  .tab{display:none!important}
+  .tab.on{display:block!important}
+  main{max-width:none!important;margin:0!important;padding:0!important}
+  .card,.sum>div,.metric-grid>div,.invoice-total>div,
+  .ins,.cal-day,.cal-item,.invoice-paper,#pa,
+  #pa table,#pa tr,#pa th,#pa td{
+    background:#fff!important;color:#111!important;
+    border-color:#aaa!important;
+  }
+  .printall main,.printall nav{display:none!important}
+  .printall #pa{display:block!important;background:#fff!important;color:#111!important}
+  #pa{background:#fff!important;color:#111!important}
+  #pa th,#pa td{background:#fff!important;color:#111!important}
+}
 </style>
 </head>
 <body>
-<header class="app-header"><div class="app-brand"><img class="app-brand-mark" src="icon.svg" alt="لوگوی نیکا"><span class="app-brand-name">Nika<sup class="app-version-badge">1.0.0</sup></span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
+<header class="app-header"><div class="app-brand"><img class="app-brand-mark" src="icon.jpg" alt="لوگوی نیکا"><span class="app-brand-name">Nika<sup class="app-version-badge">1.0.0</sup></span></div><div class="header-persian-date" id="headerPersianDate" aria-label="تاریخ شمسی و میلادی"><span class="header-persian-date-value" id="headerPersianDateValue"></span><span class="header-date-divider" aria-hidden="true"></span><span class="header-gregorian-date" id="headerGregorianDate"></span></div><button type="button" class="theme-toggle" id="themeToggle" aria-label="تغییر پوسته" title="تغییر پوسته"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></header>
 <main>
 <div id="appUpdate" role="status" aria-live="polite"><p>نسخه جدید نیکا آماده است.</p><button type="button" class="p" id="applyAppUpdate">به‌روزرسانی</button></div>
 <div class="card" id="bn" hidden><div class="top"><span id="bnt"></span><button class="p" id="bnb">پشتیبان‌گیری</button></div></div>
