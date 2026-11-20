@@ -249,7 +249,7 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
  <div class="ex"><button class="s" data-x="xl">خروجی Excel</button><button class="s" data-x="pdf">خروجی PDF</button></div>
  <div class="card f">
   <button type="button" class="scan-info-toggle" aria-expanded="false" aria-controls="scanInvoiceInfo">اسکن هوشمند فاکتور و تکمیل خودکار فرم <span class="scan-info-chevron" aria-hidden="true">▾</span></button>
-  <p class="msg scan-info-text" id="scanInvoiceInfo" hidden>عکس را با دوربین بگیر یا از گالری/PDF انتخاب کن. نیکا اطلاعات مشتری و مبالغ را استخراج و فرم را تکمیل می‌کند. بدون کلید API از OCR فارسی روی دستگاه استفاده می‌شود؛ با کلید API تحلیل هوشمند دقیق‌تر فعال است. قبل از ثبت، مبالغ و تاریخ را کنترل کن.</p>
+  <p class="msg scan-info-text" id="scanInvoiceInfo" hidden>عکس را با دوربین بگیر یا از گالری/PDF انتخاب کن. نیکا تصویر را در چند حالت بهبود می‌دهد، متن فارسی و انگلیسی را چند بار می‌خواند و بهترین نتیجه‌ها را برای تکمیل فرم مقایسه می‌کند. برای PDF حداکثر سه صفحه اول پردازش می‌شود. قبل از ثبت، نام، مبالغ و تاریخ‌ها را کنترل کن.</p>
   <div class="ex"><button class="s" data-pick="cam">دوربین</button><button class="s" data-pick="gal">گالری</button><button class="s" data-pick="file">فایل</button></div>
   <input id="i_cam" type="file" accept="image/*" capture="environment" hidden>
   <input id="i_gal" type="file" accept="image/*" hidden>
@@ -508,7 +508,7 @@ function rowsCalendar(){const dm=allDue();return Object.keys(dm).sort().flatMap(
 function rCalendar(){if(!calMonth){const p=jParts(new Date());calMonth={y:p[0],m:p[1]}}const{y,m}=calMonth,first=jMonthStart(y,m),next=m===12?jMonthStart(y+1,1):jMonthStart(y,m+1),days=Math.round((next-first)/864e5),offset=(first.getDay()+1)%7,dm=allDue(),labels=["ش","ی","د","س","چ","پ","ج"];let h='<div class="card"><div class="cal-head"><button class="s" id="calPrev">ماه قبل</button><b>'+new Date(first).toLocaleDateString("fa-IR",{year:"numeric",month:"long"})+'</b><button class="s" id="calNext">ماه بعد</button></div><div class="cal-grid">'+labels.map(x=>'<div class="cal-week">'+x+'</div>').join("");for(let z=0;z<offset;z++)h+='<div class="cal-day empty"></div>';for(let n=1;n<=days;n++){const dt=new Date(first.getTime()+(n-1)*864e5),key=dateIso(dt),items=dm[key]||[],late=items.some(x=>!x.paid&&dt<T()),cls=items.length?(late?"has-late":"has-due"):"";h+='<button class="cal-day '+cls+' '+(calSelected===key?"selected":"")+'" data-calday="'+key+'"><b>'+fa(n)+'</b>'+(items.length?'<small>'+fa(items.length)+' قسط</small>':'')+'</button>'}h+='</div><p class="msg"><span style="color:#22c55e;font-weight:800">سبز</span>: روز دارای سررسید؛ <span style="color:#ef4444;font-weight:800">قرمز</span>: دست‌کم یک قسط پرداخت‌نشده و عقب‌افتاده.</p></div>';const todayISO=dateIso(new Date()),todayParts=jParts(new Date()),firstParts=jParts(first),selected=calSelected||(todayParts[0]===firstParts[0]&&todayParts[1]===firstParts[1]?todayISO:dateIso(first)),items=dm[selected]||[];h+='<div class="card"><b>اقساط '+fd(day(selected))+'</b>'+(items.map(x=>'<div class="cal-item"><div class="top"><b>'+esc(x.d.name)+'</b><span class="'+(x.paid?"ok":"mid")+'">'+(x.paid?"پرداخت‌شده":"در انتظار پرداخت")+'</span></div><div class="row"><span>شماره قسط</span><b>'+fa(x.index+1)+' از '+fa(x.d.count)+'</b></div><div class="row"><span>مبلغ قسط</span><b>'+fa(x.amount)+'</b></div><div class="row"><span>موبایل</span><b>'+esc(x.d.phone||"ثبت نشده")+'</b></div><div class="row"><span>شرح معامله</span><b>'+esc(x.d.item||"—")+'</b></div><button class="s" data-pay="'+x.d.id+':'+x.index+'">'+(x.paid?"لغو ثبت پرداخت":"ثبت دریافت قسط")+'</button></div>').join("")||'<p class="msg">در این روز سررسیدی ثبت نشده است.</p>')+'</div>';$("cl").innerHTML=h;$("calPrev").onclick=()=>{calMonth.m--;if(calMonth.m<1){calMonth.m=12;calMonth.y--}calSelected=null;rCalendar()};$("calNext").onclick=()=>{calMonth.m++;if(calMonth.m>12){calMonth.m=1;calMonth.y++}calSelected=null;rCalendar()};$("cl").querySelectorAll("[data-calday]").forEach(b=>b.onclick=()=>{calSelected=b.dataset.calday;rCalendar()});$("cl").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{const[id,i]=b.dataset.pay.split(":"),d=S.deals.find(x=>x.id===id);if(d){d.paid[i]=!d.paid[i];d.paidAt=d.paidAt||[];d.paidAt[i]=d.paid[i]?new Date().toISOString():null;save();rCalendar()}})}
 
 async function invoicePagesForOCR(f,onProgress){
- if(f.type!=="application/pdf")return [{blob:f,page:1}];
+ if(f.type!=="application/pdf"){const single=[{blob:f,page:1}];single.totalPages=1;return single;}
  if(!window.pdfjsLib)throw Error("موتور خواندن PDF بارگذاری نشد؛ اتصال اینترنت را بررسی کن.");
  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
  const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise,pages=[],limit=Math.min(doc.numPages,3);
@@ -520,7 +520,7 @@ async function invoicePagesForOCR(f,onProgress){
   const blob=await new Promise((ok,no)=>c.toBlob(b=>b?ok(b):no(Error("تبدیل صفحه PDF ناموفق بود")),"image/jpeg",.96));
   pages.push({blob,page:i});onProgress&&onProgress(4+i/limit*5,"آماده‌سازی صفحه "+fa(i)+" از "+fa(limit)+"…");
  }
- return pages;
+ pages.totalPages=doc.numPages;return pages;
 }
 async function invoiceOCRVariants(blob){
  const bitmap=await createImageBitmap(blob),long=Math.max(bitmap.width,bitmap.height),scale=Math.min(2.5,2400/long),w=Math.max(1,Math.round(bitmap.width*scale)),h=Math.max(1,Math.round(bitmap.height*scale)),base=document.createElement("canvas");
@@ -608,7 +608,7 @@ async function readInvoiceLocal(f,onProgress){
  for(const c of candidates.slice(1))for(const [k,v] of Object.entries(c.fields))if((fields[k]==null||fields[k]==="")&&v!=null&&v!=="")fields[k]=v;
  const confidence=Math.max(...candidates.map(c=>c.confidence)),filled=Object.values(fields).filter(v=>v!=null&&v!=="").length;
  onProgress(100,"پردازش چندمرحله‌ای فاکتور کامل شد.");
- return {fields,confidence,text:allText.join("\n\n"),passes:candidates.length,pages:pages.length,filled,bestVariant:candidates[0].variant};
+ return {fields,confidence,text:allText.join("\n\n"),passes:candidates.length,pages:pages.length,totalPages:pages.totalPages||pages.length,filled,bestVariant:candidates[0].variant};
 }
 
 ["cam","gal","file"].forEach(k=>$("i_"+k).onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)inv(f)});
@@ -632,7 +632,7 @@ async function inv(f){pend=f;const m=$("imsg");m.className="msg";m.textContent="
   const confidence="اطمینان تشخیص متن: "+fa(local.confidence)+"٪";
   const meta="؛ "+fa(local.pages)+" صفحه پردازش شد، "+fa(local.passes)+" بار خوانش تصویر انجام شد";
   if(filled<3){m.className="msg e";m.textContent="پردازش چندمرحله‌ای انجام شد، اما اطلاعات کافی برای تکمیل فرم پیدا نشد ("+confidence+meta.replace("؛","،")+"). تصویر را صاف، بدون سایه و با وضوح بالاتر بگیر. فایل اصلی همچنان برای پیوست نگه داشته شده است.";return}
-  m.textContent="فرم با OCR چندمرحله‌ای تکمیل شد ("+fa(filled)+" فیلد از ۸ فیلد اصلی؛ بهترین نسخه تصویر: "+local.bestVariant+"؛ "+confidence+meta+"). مبالغ و تاریخ‌ها را پیش از ثبت کنترل کن."+warning+(local.pages===3&&f.type==="application/pdf"?" فقط سه صفحه اول PDF بررسی شد.":"");
+  m.textContent="فرم با OCR چندمرحله‌ای تکمیل شد ("+fa(filled)+" فیلد از ۸ فیلد اصلی؛ بهترین نسخه تصویر: "+local.bestVariant+"؛ "+confidence+meta+"). مبالغ و تاریخ‌ها را پیش از ثبت کنترل کن."+warning+(local.totalPages>local.pages?" فقط "+fa(local.pages)+" صفحه اول از "+fa(local.totalPages)+" صفحه PDF بررسی شد.":"");
  }catch(x){m.className="msg e";m.textContent="پردازش تصویر انجام نشد: "+x.message+"؛ فایل اصلی برای پیوست نگه داشته شد.";setInvoiceProgress(0,"پردازش ناموفق بود.");}};
 async function prep(f){if(f.type=="application/pdf")return f;const im=await createImageBitmap(f),sc=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.85))}
 async function showAtt(id){try{const a=await idb("get","att:"+id);if(!a)return alert("فایل پیوست پیدا نشد.");
