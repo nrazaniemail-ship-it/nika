@@ -10,7 +10,7 @@ on:
       - 'index.html'
       - 'sw.js'
       - 'manifest.webmanifest'
-      - 'icon.png'
+      - 'icon.svg'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
@@ -48,11 +48,11 @@ jobs:
           ASSETS="app/src/main/assets"
           mkdir -p "$ASSETS"
           rm -rf "$ASSETS/www"
-          cp index.html manifest.webmanifest sw.js icon.png "$ASSETS/"
+          cp index.html manifest.webmanifest sw.js icon.svg "$ASSETS/"
           test -s "$ASSETS/index.html"
           test -s "$ASSETS/manifest.webmanifest"
           test -s "$ASSETS/sw.js"
-          test -s "$ASSETS/icon.png"
+          test -s "$ASSETS/icon.svg"
           echo "Bundled files:"
           ls -lah "$ASSETS"
 
@@ -65,7 +65,22 @@ jobs:
           set -euo pipefail
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.png)$'
+          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg)
+          unzip -p "$APK" assets/index.html | grep -q '<html'
+          echo "APK_SIZE=$(stat -c%s "$APK")" >> "$GITHUB_ENV"
+          sha256sum "$APK" | tee app/build/outputs/apk/debug/SHA256SUMS.txt
+          echo "APK_PATH=$APK" >> "$GITHUB_ENV"
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nika-1.0.0-debug-apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
           unzip -p "$APK" assets/index.html | grep -q '<html'
           echo "APK_SIZE=$(stat -c%s "$APK")" >> "$GITHUB_ENV"
           sha256sum "$APK" | tee app/build/outputs/apk/debug/SHA256SUMS.txt
