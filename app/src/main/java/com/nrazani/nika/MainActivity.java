@@ -10,6 +10,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Base64;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class MainActivity extends Activity {
     private static final String APP_URL = "https://appassets.androidplatform.net/assets/index.html";
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
+    private Uri pendingCameraUri;
     private WebViewAssetLoader assetLoader;
     private String pendingFileName;
     private String pendingMimeType;
@@ -108,19 +110,26 @@ public class MainActivity extends Activity {
                 }
 
                 Intent intent;
-                if (imageOnly && !params.isCaptureEnabled()) {
-                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    intent.setType("image/*");
-                } else {
-                    intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("*/*");
-                }
                 try {
-                    Intent chooser = Intent.createChooser(
-                        intent,
-                        imageOnly ? "انتخاب عکس از گالری" : "انتخاب تصویر یا PDF فاکتور"
-                    );
+                    if (params.isCaptureEnabled()) {
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Images.Media.DISPLAY_NAME, "Nika-document-" + System.currentTimeMillis() + ".jpg");
+                        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                        pendingCameraUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                        if (pendingCameraUri == null) throw new ActivityNotFoundException("camera output unavailable");
+                        intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, pendingCameraUri);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    } else if (imageOnly) {
+                        intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        intent.setType("image/*");
+                    } else {
+                        intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("*/*");
+                    }
+                    Intent chooser = Intent.createChooser(intent,
+                        params.isCaptureEnabled() ? "گرفتن عکس با دوربین" : (imageOnly ? "انتخاب عکس از گالری" : "انتخاب تصویر یا PDF"));
                     startActivityForResult(chooser, FILE_CHOOSER_REQUEST);
                 } catch (ActivityNotFoundException e) {
                     fileCallback = null;
@@ -254,9 +263,13 @@ public class MainActivity extends Activity {
         }
         if (requestCode == FILE_CHOOSER_REQUEST && fileCallback != null) {
             Uri[] results = null;
-            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-                results = new Uri[]{data.getData()};
+            if (resultCode == RESULT_OK) {
+                Uri selected = pendingCameraUri != null ? pendingCameraUri : (data != null ? data.getData() : null);
+                if (selected != null) results = new Uri[]{selected};
+            } else if (pendingCameraUri != null) {
+                try { getContentResolver().delete(pendingCameraUri, null, null); } catch (Exception ignored) {}
             }
+            pendingCameraUri = null;
             fileCallback.onReceiveValue(results);
             fileCallback = null;
             return;
