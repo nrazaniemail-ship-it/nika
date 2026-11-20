@@ -115,6 +115,11 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
 @media(max-width:650px){.app-header{height:60px;padding:0 14px}.theme-toggle{left:12px;width:38px;height:38px}main{padding:18px 13px 110px}}
 
 .customer-doc-upload{width:100%;border-style:dashed;border-width:1px;padding:12px;font-weight:700}
+.customer-doc-picker{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.48);display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+.customer-doc-picker[hidden]{display:none}
+.customer-doc-choice{flex:1;max-width:150px;min-height:94px;border:1px solid var(--l);border-radius:14px;background:var(--panel);color:var(--t);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font:inherit;box-shadow:0 8px 28px #0002}
+.customer-doc-choice span{font-size:27px}.customer-doc-choice b{font-size:.82rem}
+.customer-doc-cancel{position:absolute;bottom:calc(126px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);border:0;background:transparent;color:#fff;font:inherit;font-weight:700;padding:8px 18px}
 .customer-doc-list{display:grid;gap:7px;margin-top:10px}
 .customer-doc-item{display:flex;align-items:center;gap:9px;padding:6px 8px;background:var(--panel2);border:1px solid var(--l);border-radius:9px;font-size:.76rem;min-height:54px}
 .customer-doc-thumb{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--l);border-radius:6px;background:var(--c);padding:2px;display:grid;place-items:center;overflow:hidden}
@@ -273,7 +278,10 @@ nav button{color:var(--m)}nav button.on{color:var(--g);box-shadow:inset 0 3px va
   <p class="msg e" id="ferr"></p>
   <button class="s customer-doc-upload" type="button" id="uploadCustomerDocs">آپلود مدارک</button>
   <button class="p" id="fsave">ثبت پرونده</button>
-  <input id="customerDocsInput" type="file" accept="image/*,application/pdf" multiple hidden>
+  <div id="customerDocsPicker" class="customer-doc-picker" hidden role="dialog" aria-modal="true" aria-label="انتخاب روش افزودن مدرک"><button type="button" class="customer-doc-choice" data-doc-source="camera"><span>📷</span><b>دوربین</b></button><button type="button" class="customer-doc-choice" data-doc-source="gallery"><span>🖼️</span><b>گالری</b></button><button type="button" class="customer-doc-choice" data-doc-source="file"><span>📁</span><b>فایل</b></button><button type="button" class="customer-doc-cancel" id="customerDocsCancel">انصراف</button></div>
+  <input id="customerDocsCamera" type="file" accept="image/*" capture="environment" multiple hidden>
+  <input id="customerDocsGallery" type="file" accept="image/*" multiple hidden>
+  <input id="customerDocsFile" type="file" accept="image/*,application/pdf" multiple hidden>
   <p class="msg" id="customerDocsMsg">برای پیوست مدارک، ابتدا پرونده مشتری را ثبت کنید.</p>
  </div>
  <h1>آخرین فاکتورها</h1><div id="recent"></div>
@@ -646,9 +654,13 @@ async function showAtt(id){try{const a=await idb("get","att:"+id);if(!a)return a
  v.innerHTML=(a.type=="application/pdf"?`<a class="p" style="padding:14px;text-decoration:none" href="${u}" target="_blank" rel="noopener">باز کردن PDF</a>`:`<img src="${u}" alt="فاکتور" style="max-width:100%;border-radius:8px">`)+`<button class="s" style="background:#fff;padding:10px 24px">بستن</button>`;
  v.querySelector("button").onclick=()=>{v.remove();URL.revokeObjectURL(u)};document.body.appendChild(v)}catch(e){alert("نمایش فایل ممکن نشد.")}}
 async function showCustomerDoc(key){try{const a=await idb("get",key);if(!a||!a.blob)return alert("مدرک پیوست پیدا نشد.");const u=URL.createObjectURL(a.blob),v=document.createElement("div");v.style.cssText="position:fixed;inset:0;z-index:9;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;overflow:auto";v.innerHTML=(a.type==="application/pdf"?'<a class="p" style="padding:14px;text-decoration:none" href="'+u+'" target="_blank" rel="noopener">باز کردن PDF</a>':'<img src="'+u+'" alt="مدرک مشتری" style="max-width:100%;max-height:78vh;object-fit:contain;border-radius:8px">')+'<button class="s" style="background:#fff;padding:10px 24px">بستن</button>';v.querySelector("button").onclick=()=>{v.remove();URL.revokeObjectURL(u)};document.body.appendChild(v)}catch(e){alert("نمایش مدرک ممکن نشد.")}}
-const docsInput=$("customerDocsInput"),docsButton=$("uploadCustomerDocs"),docsMsg=$("customerDocsMsg");
-docsButton.onclick=()=>{if(!S.deals.length&&!editInvoiceId){docsMsg.textContent="ابتدا یک فاکتور ثبت کنید تا مدارک به پرونده آن پیوست شود.";return}docsInput.click()};
-docsInput.onchange=async()=>{const files=Array.from(docsInput.files||[]);docsInput.value="";if(!files.length)return;const target=editInvoiceId?S.deals.find(x=>x.id===editInvoiceId):S.deals[0];if(!target){docsMsg.textContent="پرونده مقصد پیدا نشد.";return}docsButton.disabled=true;docsMsg.textContent="در حال ذخیره "+fa(files.length)+" مدرک…";try{target.docs=Array.isArray(target.docs)?target.docs:[];let added=0;for(const file of files){if(!/^image\//.test(file.type)&&file.type!=="application/pdf")continue;if(file.size>25*1024*1024)continue;const key="doc:"+target.id+":"+Date.now()+":"+Math.random().toString(36).slice(2,8);const blob=await prep(file);await idb("set",key,{blob,type:file.type||blob.type,name:file.name});target.docs.push({key,name:file.name,type:file.type||blob.type,size:file.size});added++}save();rInv();docsMsg.textContent=added?fa(added)+" مدرک به پرونده "+target.name+" پیوست شد.":"مدرک قابل‌قبولی انتخاب نشد (حداکثر حجم هر فایل ۲۵ مگابایت)."}catch(err){docsMsg.textContent="ذخیره مدارک ناموفق بود: "+err.message}finally{docsButton.disabled=false}};
+const docsButton=$("uploadCustomerDocs"),docsMsg=$("customerDocsMsg"),docsPicker=$("customerDocsPicker");
+const docsInputs={camera:$("customerDocsCamera"),gallery:$("customerDocsGallery"),file:$("customerDocsFile")};
+docsButton.onclick=()=>{if(!S.deals.length&&!editInvoiceId){docsMsg.textContent="ابتدا یک فاکتور ثبت کنید تا مدارک به پرونده آن پیوست شود.";return}docsPicker.hidden=false};
+$("customerDocsCancel").onclick=()=>docsPicker.hidden=true;
+docsPicker.addEventListener("click",e=>{if(e.target===docsPicker)docsPicker.hidden=true});
+docsPicker.querySelectorAll("[data-doc-source]").forEach(b=>b.onclick=()=>{const k=b.dataset.docSource;docsPicker.hidden=true;docsInputs[k].click()});
+Object.values(docsInputs).forEach(docsInput=>docsInput.onchange=async()=>{const files=Array.from(docsInput.files||[]);docsInput.value="";if(!files.length)return;const target=editInvoiceId?S.deals.find(x=>x.id===editInvoiceId):S.deals[0];if(!target){docsMsg.textContent="پرونده مقصد پیدا نشد.";return}docsButton.disabled=true;docsMsg.textContent="در حال ذخیره "+fa(files.length)+" مدرک…";try{target.docs=Array.isArray(target.docs)?target.docs:[];let added=0;for(const file of files){if(!/^image\//.test(file.type)&&file.type!=="application/pdf")continue;if(file.size>25*1024*1024)continue;const key="doc:"+target.id+":"+Date.now()+":"+Math.random().toString(36).slice(2,8);const blob=await prep(file);await idb("set",key,{blob,type:file.type||blob.type,name:file.name});target.docs.push({key,name:file.name,type:file.type||blob.type,size:file.size});added++}save();rInv();docsMsg.textContent=added?fa(added)+" مدرک به پرونده "+target.name+" پیوست شد.":"مدرک قابل‌قبولی انتخاب نشد (حداکثر حجم هر فایل ۲۵ مگابایت)."}catch(err){docsMsg.textContent="ذخیره مدارک ناموفق بود: "+err.message}finally{docsButton.disabled=false}});
 $("fsave").onclick=async()=>{const e=$("ferr"),name=$("f_name").value.trim(),total=num($("f_total").value),pre=num($("f_pre").value||0),count=num($("f_count").value),inst=num($("f_inst").value),date=parseJ($("f_date").value),start=parseJ($("f_start").value);
  if(!name)return e.textContent="نام مشتری را وارد کن.";
  if(!date)return e.textContent="تاریخ را به شکل 1405/08/10 وارد کن.";
