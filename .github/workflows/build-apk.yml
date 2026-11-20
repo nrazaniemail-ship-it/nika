@@ -48,16 +48,18 @@ jobs:
         run: |
           set -euo pipefail
           ASSETS="app/src/main/assets"
-          mkdir -p "$ASSETS/vendor"
+          mkdir -p "$ASSETS/vendor/tesseract"
           rm -rf "$ASSETS/www"
           cp index.html manifest.webmanifest sw.js icon.svg icon.jpg "$ASSETS/"
           cp vendor/xlsx.full.min.js "$ASSETS/vendor/"
+          cp vendor/tesseract/tesseract.min.js "$ASSETS/vendor/tesseract/"
           test -s "$ASSETS/index.html"
           test -s "$ASSETS/manifest.webmanifest"
           test -s "$ASSETS/sw.js"
           test -s "$ASSETS/icon.svg"
           test -s "$ASSETS/icon.jpg"
           test -s "$ASSETS/vendor/xlsx.full.min.js"
+          test -s "$ASSETS/vendor/tesseract/tesseract.min.js"
           echo "Bundled files:"
           find "$ASSETS" -maxdepth 2 -type f -printf '%p %s bytes\\n'
 
@@ -73,6 +75,7 @@ jobs:
           unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg|icon.jpg|vendor/xlsx.full.min.js)$'
           unzip -p "$APK" assets/index.html | grep -q '<html'
           unzip -p "$APK" assets/vendor/xlsx.full.min.js | grep -q 'xlsx.js'
+          unzip -p "$APK" assets/vendor/tesseract/tesseract.min.js | grep -q "Tesseract"
           echo "APK_SIZE=$(stat -c%s "$APK")" >> "$GITHUB_ENV"
           sha256sum "$APK" | tee app/build/outputs/apk/debug/SHA256SUMS.txt
           echo "APK_PATH=$APK" >> "$GITHUB_ENV"
@@ -80,7 +83,7 @@ jobs:
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: Nika-1.0.2-debug-apk
+          name: Nika-1.0.3-debug-apk
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             app/build/outputs/apk/debug/SHA256SUMS.txt
