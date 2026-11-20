@@ -526,11 +526,8 @@ async function invoiceOCRVariants(blob){
  const bitmap=await createImageBitmap(blob),long=Math.max(bitmap.width,bitmap.height),scale=Math.min(2.5,2400/long),w=Math.max(1,Math.round(bitmap.width*scale)),h=Math.max(1,Math.round(bitmap.height*scale)),base=document.createElement("canvas");
  base.width=w;base.height=h;
  const bx=base.getContext("2d",{willReadFrequently:true});bx.fillStyle="#fff";bx.fillRect(0,0,w,h);bx.drawImage(bitmap,0,0,w,h);bitmap.close&&bitmap.close();
- const src=bx.getImageData(0,0,w,h),gray=new Uint8ClampedArray(w*h),hist=new Uint32Array(256);
- for(let p=0,j=0;p<src.data.length;p+=4,j++){const v=Math.round(.299*src.data[p]+.587*src.data[p+1]+.114*src.data[p+2]);gray[j]=v;hist[v]++}
- let sum=0,total=w*h;for(let i=0;i<256;i++)sum+=i*hist[i];
- let sumB=0,wB=0,best=-1,otsu=150;
- for(let i=0;i<256;i++){wB+=hist[i];if(!wB)continue;const wF=total-wB;if(!wF)break;sumB+=i*hist[i];const between=wB*wF*Math.pow(sumB/wB-(sum-sumB)/wF,2);if(between>best){best=between;otsu=i}}
+ const src=bx.getImageData(0,0,w,h),gray=new Uint8ClampedArray(w*h);
+ for(let p=0,j=0;p<src.data.length;p+=4,j++)gray[j]=Math.round(.299*src.data[p]+.587*src.data[p+1]+.114*src.data[p+2]);
  const contrast=document.createElement("canvas");contrast.width=w;contrast.height=h;
  const cx=contrast.getContext("2d"),ci=cx.createImageData(w,h);
  for(let j=0;j<gray.length;j++){const v=Math.max(0,Math.min(255,Math.round((gray[j]-128)*1.42+128))),k=j*4;ci.data[k]=ci.data[k+1]=ci.data[k+2]=v;ci.data[k+3]=255}cx.putImageData(ci,0,0);
@@ -543,10 +540,7 @@ async function invoiceOCRVariants(blob){
   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const j=y*w+x,k=j*4,v=gray[j]<threshold?0:255;ti.data[k]=ti.data[k+1]=ti.data[k+2]=v;ti.data[k+3]=255}
  }
  tx.putImageData(ti,0,0);
- const globalBinary=document.createElement("canvas");globalBinary.width=w;globalBinary.height=h;
- const gx=globalBinary.getContext("2d"),gi=gx.createImageData(w,h);
- for(let j=0;j<gray.length;j++){const k=j*4,v=gray[j]<Math.max(80,otsu-8)?0:255;gi.data[k]=gi.data[k+1]=gi.data[k+2]=v;gi.data[k+3]=255}gx.putImageData(gi,0,0);
- return [{image:base,label:"تصویر اصلی"},{image:contrast,label:"افزایش کنتراست"},{image:binary,label:"آستانه‌گذاری هوشمند"},{image:globalBinary,label:"سیاه‌وسفید تطبیقی"}];
+ return [{image:base,label:"تصویر اصلی"},{image:contrast,label:"افزایش کنتراست"},{image:binary,label:"آستانه‌گذاری هوشمند"}];
 }
 function localInvoiceFields(text){
  const lines=String(text||"").replace(/\r/g,"\n").split("\n").map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
@@ -579,11 +573,11 @@ async function readInvoiceLocal(f,onProgress){
  if(!window.Tesseract||!Tesseract.createWorker)throw Error("موتور OCR بارگذاری نشد؛ اتصال اینترنت را بررسی کن.");
  onProgress(2,"بررسی و آماده‌سازی سند…");
  const pages=await invoicePagesForOCR(f,onProgress);if(!pages.length)throw Error("صفحه قابل پردازشی در فایل پیدا نشد.");
- const passes=pages.length*4,candidates=[],allText=[];let completed=0,worker=null;
+ const passes=pages.length*3,candidates=[],allText=[];let completed=0,worker=null;
  try{
   onProgress(10,"راه‌اندازی موتور تشخیص فارسی و انگلیسی…");
   worker=await Tesseract.createWorker("fas+eng",1,{
-   logger:m=>{if(m.status==="recognizing text"&&Number.isFinite(m.progress))onProgress(10+(completed+m.progress)*82/passes,"خواندن متن صفحه "+fa(Math.min(pages.length,Math.floor(completed/4)+1))+"…");},
+   logger:m=>{if(m.status==="recognizing text"&&Number.isFinite(m.progress))onProgress(10+(completed+m.progress)*82/passes,"خواندن متن صفحه "+fa(Math.min(pages.length,Math.floor(completed/3)+1))+"…");},
    workerPath:"https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
    corePath:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5",
    langPath:"https://tessdata.projectnaptha.com/4.0.0",
@@ -627,14 +621,15 @@ function fillInv(r){let w="";const sv=(id,v)=>{if(v!=null&&v!=="")$(id).value=v}
  const rr=num($("f_pre").value||0)+num($("f_count").value||0)*num($("f_inst").value||0);
  if(r.repay!=null&&Math.abs(num(r.repay)-rr)>1)w+=" ⚠ کل بازپرداخت چاپ‌شده با محاسبه فرق دارد.";
  if(r.profit!=null&&Math.abs(num(r.profit)-(rr-num($("f_total").value||0)))>1)w+=" ⚠ سود چاپ‌شده با محاسبه فرق دارد.";return w}
-async function inv(f){pend=f;const m=$("imsg");m.className="msg";m.textContent="فاکتور دریافت شد؛ پردازش آغاز شد.";setInvoiceProgress(0,"شروع پردازش فاکتور…");
- try{let r=null,method="";
-  const local=await readInvoiceLocal(f,(p,t)=>setInvoiceProgress(p,t));r=local.fields;method="OCR محلی";r._confidence=local.confidence;
+async function inv(f){pend=f;const m=$("imsg");m.className="msg";m.textContent="فاکتور دریافت شد؛ سامانه چندمرحله‌ای پردازش را آغاز کرد.";setInvoiceProgress(0,"شروع پردازش هوشمند فاکتور…");
+ try{
+  const local=await readInvoiceLocal(f,(p,t)=>setInvoiceProgress(p,t)),r=local.fields;r._confidence=local.confidence;
   const warning=fillInv(r),filled=["name","phone","date","item","total","prepay","count","inst"].filter(k=>r[k]!=null&&r[k]!=="").length;
-  if(filled<3){m.className="msg e";m.textContent="متن فاکتور شناسایی شد، اما اطلاعات کافی برای تکمیل خودکار پیدا نشد. تصویر واضح‌تر و مستقیم از فاکتور بگیر. فایل همچنان برای پیوست نگه داشته شده است.";return}
-  const confidence=r._confidence!=null?" — اطمینان OCR: "+fa(r._confidence)+"٪":"";
-  m.textContent="فرم با "+method+" تکمیل شد ("+fa(filled)+" فیلد از ۸ فیلد اصلی)"+confidence+". لطفاً همه مبالغ و تاریخ‌ها را قبل از ثبت بررسی کن."+warning;
- }catch(x){m.className="msg e";m.textContent="پردازش فاکتور انجام نشد: "+x.message+"؛ فایل برای پیوست نگه داشته شد.";setInvoiceProgress(0,"پردازش ناموفق بود.");}};
+  const confidence="اطمینان تشخیص متن: "+fa(local.confidence)+"٪";
+  const meta="؛ "+fa(local.pages)+" صفحه پردازش شد، "+fa(local.passes)+" بار خوانش تصویر انجام شد";
+  if(filled<3){m.className="msg e";m.textContent="پردازش چندمرحله‌ای انجام شد، اما اطلاعات کافی برای تکمیل فرم پیدا نشد ("+confidence+meta.replace("؛","،")+"). تصویر را صاف، بدون سایه و با وضوح بالاتر بگیر. فایل اصلی همچنان برای پیوست نگه داشته شده است.";return}
+  m.textContent="فرم با OCR چندمرحله‌ای تکمیل شد ("+fa(filled)+" فیلد از ۸ فیلد اصلی؛ بهترین نسخه تصویر: "+local.bestVariant+"؛ "+confidence+meta+"). مبالغ و تاریخ‌ها را پیش از ثبت کنترل کن."+warning+(local.pages===3&&f.type==="application/pdf"?" فقط سه صفحه اول PDF بررسی شد.":"");
+ }catch(x){m.className="msg e";m.textContent="پردازش تصویر انجام نشد: "+x.message+"؛ فایل اصلی برای پیوست نگه داشته شد.";setInvoiceProgress(0,"پردازش ناموفق بود.");}};
 async function prep(f){if(f.type=="application/pdf")return f;const im=await createImageBitmap(f),sc=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.85))}
 async function showAtt(id){try{const a=await idb("get","att:"+id);if(!a)return alert("فایل پیوست پیدا نشد.");
  const u=URL.createObjectURL(a.blob),v=document.createElement("div");
