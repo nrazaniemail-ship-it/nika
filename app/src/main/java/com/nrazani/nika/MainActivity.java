@@ -9,12 +9,9 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.util.Base64;
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.JavascriptInterface;
@@ -123,42 +120,6 @@ public class MainActivity extends Activity {
             final String safeMime = (mimeType == null || mimeType.isEmpty())
                 ? "application/octet-stream" : mimeType;
 
-            if (android.os.Build.VERSION.SDK_INT >= 29) {
-                new Thread(() -> {
-                    Uri savedUri = null;
-                    try {
-                        byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-                        ContentValues values = new ContentValues();
-                        values.put(MediaStore.MediaColumns.DISPLAY_NAME, safeName);
-                        values.put(MediaStore.MediaColumns.MIME_TYPE, safeMime);
-                        values.put(MediaStore.MediaColumns.RELATIVE_PATH,
-                            Environment.DIRECTORY_DOWNLOADS + "/Nika");
-                        values.put(MediaStore.MediaColumns.IS_PENDING, 1);
-                        savedUri = getContentResolver().insert(
-                            MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                        if (savedUri == null) throw new java.io.IOException("ساخت فایل در پوشه دانلودها ناموفق بود");
-                        try (OutputStream output = getContentResolver().openOutputStream(savedUri)) {
-                            if (output == null) throw new java.io.IOException("فایل مقصد باز نشد");
-                            output.write(bytes);
-                            output.flush();
-                        }
-                        ContentValues ready = new ContentValues();
-                        ready.put(MediaStore.MediaColumns.IS_PENDING, 0);
-                        getContentResolver().update(savedUri, ready, null, null);
-                        runOnUiThread(() -> Toast.makeText(MainActivity.this,
-                            "فایل در پوشه Downloads/Nika ذخیره شد.", Toast.LENGTH_LONG).show());
-                    } catch (Exception e) {
-                        if (savedUri != null) {
-                            try { getContentResolver().delete(savedUri, null, null); } catch (Exception ignored) {}
-                        }
-                        final String message = e.getMessage() == null ? "خطای ناشناخته" : e.getMessage();
-                        runOnUiThread(() -> Toast.makeText(MainActivity.this,
-                            "ذخیره فایل ناموفق بود: " + message, Toast.LENGTH_LONG).show());
-                    }
-                }, "NikaFileSaver").start();
-                return;
-            }
-
             runOnUiThread(() -> {
                 pendingFileName = safeName;
                 pendingMimeType = safeMime;
@@ -167,11 +128,13 @@ public class MainActivity extends Activity {
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType(pendingMimeType);
                 intent.putExtra(Intent.EXTRA_TITLE, pendingFileName);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 try {
                     startActivityForResult(intent, SAVE_FILE_REQUEST);
                 } catch (ActivityNotFoundException e) {
                     clearPendingFile();
-                    Toast.makeText(MainActivity.this, "امکان باز کردن پنجره ذخیره فایل وجود ندارد.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,
+                        "پنجره ذخیره فایل در دستگاه در دسترس نیست.", Toast.LENGTH_LONG).show();
                 }
             });
         }
