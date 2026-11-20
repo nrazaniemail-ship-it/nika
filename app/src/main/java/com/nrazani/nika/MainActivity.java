@@ -11,6 +11,7 @@ import android.util.Base64;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.os.Bundle;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -89,14 +90,38 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
+                // For image-only inputs (the invoice gallery button), open the
+                // device's image gallery directly instead of the generic Downloads picker.
+                boolean imageOnly = true;
+                String[] accepted = params.getAcceptTypes();
+                if (accepted == null || accepted.length == 0) {
+                    imageOnly = false;
+                } else {
+                    boolean hasImage = false;
+                    for (String type : accepted) {
+                        if (type == null || type.trim().isEmpty()) continue;
+                        String normalized = type.toLowerCase(java.util.Locale.ROOT).trim();
+                        if (normalized.startsWith("image/")) hasImage = true;
+                        else if (!normalized.equals("*/*")) imageOnly = false;
+                    }
+                    imageOnly = imageOnly && hasImage;
+                }
+
+                Intent intent;
+                if (imageOnly && !params.isCaptureEnabled()) {
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                } else {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                }
                 try {
-                    startActivityForResult(
-                        Intent.createChooser(intent, "انتخاب تصویر یا PDF فاکتور"),
-                        FILE_CHOOSER_REQUEST
+                    Intent chooser = Intent.createChooser(
+                        intent,
+                        imageOnly ? "انتخاب عکس از گالری" : "انتخاب تصویر یا PDF فاکتور"
                     );
+                    startActivityForResult(chooser, FILE_CHOOSER_REQUEST);
                 } catch (ActivityNotFoundException e) {
                     fileCallback = null;
                     Toast.makeText(MainActivity.this, "برنامه‌ای برای انتخاب فایل پیدا نشد.", Toast.LENGTH_LONG).show();
