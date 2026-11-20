@@ -11,6 +11,7 @@ on:
       - 'sw.js'
       - 'manifest.webmanifest'
       - 'icon.svg'
+      - 'icon.jpg'
       - 'vendor/**'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
@@ -49,12 +50,13 @@ jobs:
           ASSETS="app/src/main/assets"
           mkdir -p "$ASSETS/vendor"
           rm -rf "$ASSETS/www"
-          cp index.html manifest.webmanifest sw.js icon.svg "$ASSETS/"
+          cp index.html manifest.webmanifest sw.js icon.svg icon.jpg "$ASSETS/"
           cp vendor/xlsx.full.min.js "$ASSETS/vendor/"
           test -s "$ASSETS/index.html"
           test -s "$ASSETS/manifest.webmanifest"
           test -s "$ASSETS/sw.js"
           test -s "$ASSETS/icon.svg"
+          test -s "$ASSETS/icon.jpg"
           test -s "$ASSETS/vendor/xlsx.full.min.js"
           echo "Bundled files:"
           find "$ASSETS" -maxdepth 2 -type f -printf '%p %s bytes\\n'
@@ -68,7 +70,7 @@ jobs:
           set -euo pipefail
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg|vendor/xlsx.full.min.js)$'
+          unzip -l "$APK" | grep -E 'assets/(index.html|manifest.webmanifest|sw.js|icon.svg|icon.jpg|vendor/xlsx.full.min.js)$'
           unzip -p "$APK" assets/index.html | grep -q '<html'
           unzip -p "$APK" assets/vendor/xlsx.full.min.js | grep -q 'xlsx.js'
           echo "APK_SIZE=$(stat -c%s "$APK")" >> "$GITHUB_ENV"
